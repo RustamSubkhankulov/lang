@@ -1,0 +1,11 @@
+/conspects
+/additional_src
+/diff
+/onegin_jnr
+tree_standart_patterns.pdf
+*.exe
+/txt_files
+/tree_simp
+/proc/txt_files
+/proc/*.exe
+
