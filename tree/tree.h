@@ -246,7 +246,8 @@ enum key_node_codes
     HEAD_ND      = 12,
     DECISION_ND  = 13,
     IF_ND        = 14,
-    FUNC_DEFN_ND = 15
+    FUNC_DEFN_ND = 15,
+    PERM_ND      = 16
 };
 
 struct Key_node_info
@@ -271,7 +272,8 @@ const struct Key_node_info Key_node_info_table[] =
     {DECL_ND      , "DECL"      },
     {HEAD_ND      , "HEAD"      },
     {DECISION_ND  , "DESIC"     },
-    {IF_ND        , "IF"        }
+    {IF_ND        , "IF"        },
+    {PERM_ND      , "PERMANENT" }
 };
 
 const int Key_node_number = sizeof(Key_node_info_table) / sizeof(struct Key_node_info);

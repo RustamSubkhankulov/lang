@@ -227,7 +227,8 @@ enum Key_word_codes
     DEFN      = 114,
     NEG       = 115,
     FBR_OPEN  = 116,
-    FBR_CLOSE = 117
+    FBR_CLOSE = 117,
+    PERM      = 118
 };
 
 //-------------------------------------------------------------------
@@ -254,7 +255,8 @@ const struct Key_word Key_words[] =
     {"colorvaria"       , DEFN     , "func definition"     , 0},
     {"cursed"           , NEG      , "negative"            , 0},
     {"confringo"        , FBR_OPEN , "figure_bracket open" , 0},
-    {"lumos"            , FBR_CLOSE, "fugire bracket close", 0}
+    {"lumos"            , FBR_CLOSE, "fugire bracket close", 0},
+    {"ascendio"         , PERM     , "permanent"           , 0}
 };
 
 const int Key_words_number = sizeof(Key_words) / sizeof(Key_word);

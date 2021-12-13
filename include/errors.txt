@@ -633,3 +633,6 @@ Incorrect built tree)
 
 DEF_ERR(932, NODE_INV_OPER_CODE,
 Invalid operand code in node)
+
+DEF_ERR(933, ASS_TO_PERM,
+Assignment to the permanent value variable)

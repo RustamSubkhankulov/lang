@@ -8,6 +8,18 @@
 
 //===================================================================
 
+#define SYNT_ERROR(error, tokens) {                                 \
+                                                                    \
+    do                                                              \
+    {                                                               \
+        error_report(error);                                        \
+        tokens_dump(tokens, logs_file);                             \
+                                                                    \
+    } while(0);                                                     \
+}
+
+//===================================================================
+
 #define TOKEN_IS_STD_FUNC(token)  (token->type == STD_FUNC)
 
 #define TOKEN_IS_DEFN(token)      (token->type == KEY_WORD && token->data.key_word_code == DEFN)
@@ -41,6 +53,8 @@
 #define TOKEN_IS_CALC_FUNC(token) (token->type == CALC_FUNC)
 
 #define TOKEN_IS_CONSTANT(token)  (token->type == CONST)
+
+#define TOKEN_IS_PERM(token)      (token->type == KEY_WORD && token->data.key_word_code == PERM)
 
 #define TOKEN_IS_ADD(token)       (token->type == OPER && token->data.operand == ADD)
 
@@ -177,6 +191,8 @@ Node* _get_cycle           (Tokens* tokens FOR_LOGS(, LOG_PARAMS));
 
 Node* _get_func_call       (Tokens* tokens FOR_LOGS(, LOG_PARAMS));
 
+Node* _get_func_parameters (Tokens* tokens FOR_LOGS(, LOG_PARAMS));
+
 Node* _get_std_func_call   (Tokens* tokens FOR_LOGS(, LOG_PARAMS));
 
 Node* _get_label_jump      (Tokens* tokens FOR_LOGS(, LOG_PARAMS));
@@ -187,17 +203,17 @@ Node* _get_exp             (Tokens* tokens FOR_LOGS(, LOG_PARAMS));
 
 Node* _get_e               (Tokens* tokens FOR_LOGS(, LOG_PARAMS));
 
-//int _get_cmp_sign(Tokens* tokens FOR_LOGS(, LOG_PARAMS));
-
 Node* _get_t               (Tokens* tokens FOR_LOGS(, LOG_PARAMS));
 
 Node* _get_m               (Tokens* tokens FOR_LOGS(, LOG_PARAMS));
 
 Node* _get_p               (Tokens* tokens FOR_LOGS(, LOG_PARAMS));
 
-// Node* _get_var_id         (Tokens* tokens FOR_LOGS(, LOG_PARAMS));
-// Node* _get_func_id        (Tokens* tokens FOR_LOGS(, LOG_PARAMS));
-// Node* _get_label_id       (Tokens* tokens FOR_LOGS(, LOG_PARAMS));
+// Node* _get_var_id          (Tokens* tokens FOR_LOGS(, LOG_PARAMS));
+
+// Node* _get_func_id         (Tokens* tokens FOR_LOGS(, LOG_PARAMS));
+
+
 
 //-------------------------------------------------------------------
 
@@ -215,6 +231,9 @@ Node* _get_p               (Tokens* tokens FOR_LOGS(, LOG_PARAMS));
 
 #define get_label_id(tokens) \
        _get_label_id(tokens FOR_LOGS(, LOG_ARGS))
+
+#define get_func_parameters(tokens) \
+       _get_func_parameters(tokens FOR_LOGS(, LOG_ARGS))
 
 #define build_a_tree(tree, tokens) \
        _build_a_tree(tree, tokens FOR_LOGS(, LOG_ARGS))
@@ -278,6 +297,12 @@ Node* _get_p               (Tokens* tokens FOR_LOGS(, LOG_PARAMS));
 
 #define get_p(tokens) \
        _get_p(tokens FOR_LOGS(, LOG_ARGS))
+
+// #define get_func_id(tokens) 
+//        _get_func_id(tokens FOR_LOGS(, LOG_ARGS))
+
+// #define get_var_id(tokens) 
+//        _get_var_id(tokens FOR_LOGS(, LOG_ARGS))
 
 //===================================================================
 

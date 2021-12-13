@@ -141,7 +141,7 @@ int _trans_func_defn(Node* node, FILE* asm_file FOR_LOGS(, LOG_PARAMS))
     fprintf(asm_file, "\n %ld: \n", func_nd->L->data.id_hash);
 
     int64_t var_hash = func_nd->R->R->data.id_hash;
-    add_var_decl(var_hash);
+    add_var_decl(var_hash, 0);
     int ram_pos = get_var_pos(var_hash);
 
     fprintf(asm_file, "\n PUSH %s \n", Argument_register);
@@ -340,13 +340,13 @@ int _trans_decl(Node* node, FILE* asm_file FOR_LOGS(, LOG_PARAMS))
 
     if (NODE_IS_ID(node->R))
     {
-        add_var_decl(node->R->data.id_hash);
+        add_var_decl(node->R->data.id_hash, 0);
         return 0;
     }
 
     else if (NODE_IS_ASS(node->R))
     {
-        add_var_decl(node->R->L->data.id_hash);
+        add_var_decl(node->R->L->data.id_hash, 0);
         
         int ret = trans_ass(node->R, asm_file);
         RETURN_CHECK(ret);

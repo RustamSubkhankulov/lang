@@ -13,14 +13,6 @@ int In_defn_flag = 0;
 
 //===================================================================
 
-struct Var
-{
-    int64_t hash;
-    int ram_pos;
-};
-
-//===================================================================
-
 static Var* Variables_decl = 0;
 
 static int Variables_decl_counter = 0;
@@ -162,10 +154,9 @@ int _was_var_declared(int64_t id_hash FOR_LOGS(, LOG_PARAMS))
     lang_log_report();
 
     for (int counter = 0; counter < Variables_decl_counter; counter++)
-    {
+
         if (id_hash == Variables_decl[Variables_decl_counter - 1 - counter].hash)
             return 1;
-    }
 
     return 0;
 }
@@ -180,10 +171,9 @@ int _get_var_pos(int64_t var_hash FOR_LOGS(, LOG_PARAMS))
     printf("\n\n hash %ld \n\n", var_hash);
 
     for (int counter = 0; counter < Variables_decl_counter; counter++)
-    {
+    
         if (var_hash == Variables_decl[Variables_decl_counter - 1 - counter].hash)
             return Variables_decl[counter].ram_pos;
-    }
 
     error_report(VAR_UNDECLARED);
     return -1;
@@ -191,7 +181,7 @@ int _get_var_pos(int64_t var_hash FOR_LOGS(, LOG_PARAMS))
 
 //-------------------------------------------------------------------
 
-int _add_var_decl(int64_t id_hash FOR_LOGS(, LOG_PARAMS))
+int _add_var_decl(int64_t id_hash, int is_perm FOR_LOGS(, LOG_PARAMS))
 {
     lang_log_report();
 
@@ -219,11 +209,38 @@ int _add_var_decl(int64_t id_hash FOR_LOGS(, LOG_PARAMS))
 
     Variables_decl[Variables_decl_counter].hash     = id_hash;
     Variables_decl[Variables_decl_counter].ram_pos  = Ram_pos++;
+    Variables_decl[Variables_decl_counter].is_perm  = is_perm;
+
     Variables_decl_counter++;
 
     printf("\n\n after add counter %d capacity %d \n\n", Variables_decl_counter, Variables_decl_capacity);
 
     return 0;
+}
+
+//-------------------------------------------------------------------
+
+int _is_perm_var(int64_t var_hash FOR_LOGS(, LOG_PARAMS))
+{
+    lang_log_report();
+
+    int index = -1;
+
+    for ( int counter = 0; counter < Variables_decl_counter; counter++)
+    
+        if (var_hash == Variables_decl[Variables_decl_counter - 1 - counter].hash)
+        { 
+            index = counter;
+            break;
+        }
+        
+    if (index == -1)
+    {
+        error_report(VAR_UNDECLARED);
+        return -1;
+    }
+
+    return Variables_decl[index].is_perm;
 }
 
 //-------------------------------------------------------------------
@@ -306,8 +323,9 @@ int _variables_log_dump( FOR_LOGS(LOG_PARAMS))
     
     for (int counter = 0; counter < Variables_decl_counter; counter++)
     {
-        fprintf(logs_file, "\n Index: [%d] Id_hash: %ld Ram pos: %d\n", counter, Variables_decl[counter].hash, 
-                                                                                 Variables_decl[counter].ram_pos);
+        fprintf(logs_file, "\n Index: [%d] Id_hash: %ld Ram pos: %d Is permanent %d\n", counter, Variables_decl[counter].hash, 
+                                                                                                 Variables_decl[counter].ram_pos,
+                                                                                                 Variables_decl[counter].is_perm);
     }
 
     fprintf(logs_file, "\n</div></pre>\n");
