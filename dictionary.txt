@@ -19,7 +19,7 @@ ASS ::= ID "ASSGN" EXP
 
 RETURN ::= "RET" EXP
 
-DECL ::= "DECL" (ID | ASSGN)
+DECL ::= " {CONST?} DECL" (ID | ASSGN)
 
 STD_FUNC_CALL ::= STD_FUNC_ID "BR_OPEN" ID_VAR "BR_CLOSE"
 
@@ -64,7 +64,8 @@ P ::= {"NEG"}? '('R')' | N | CALC_FUNC | FUNC_CALL | ID
     {"colorvaria"       , DEFN     , "func definition"     , 0},
     {"cursed"           , NEG      , "negative"            , 0},
     {"confringo"        , FBR_OPEN , "figure_bracket open" , 0},
-    {"lumos"            , FBR_CLOSE, "fugire bracket close", 0}
+    {"lumos"            , FBR_CLOSE, "fugire bracket close", 0},
+    {"ascendio"         , PERM     , "permanent"           , 0}
 };
 
 const static struct Std_function Std_functions[] =

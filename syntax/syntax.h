@@ -209,11 +209,13 @@ Node* _get_m               (Tokens* tokens FOR_LOGS(, LOG_PARAMS));
 
 Node* _get_p               (Tokens* tokens FOR_LOGS(, LOG_PARAMS));
 
-// Node* _get_var_id          (Tokens* tokens FOR_LOGS(, LOG_PARAMS));
+Node* _get_var_id          (Tokens* tokens FOR_LOGS(, LOG_PARAMS));
 
-// Node* _get_func_id         (Tokens* tokens FOR_LOGS(, LOG_PARAMS));
+Node* _get_func_id         (Tokens* tokens FOR_LOGS(, LOG_PARAMS));
 
+Node* _get_var_id_decl     (Tokens* tokens FOR_LOGS(, LOG_PARAMS));
 
+Node* _get_func_id_decl    (Tokens* tokens FOR_LOGS(, LOG_PARAMS));
 
 //-------------------------------------------------------------------
 
@@ -228,6 +230,12 @@ Node* _get_p               (Tokens* tokens FOR_LOGS(, LOG_PARAMS));
 
 #define get_func_id(tokens) \
        _get_func_id(tokens FOR_LOGS(, LOG_ARGS))
+
+#define get_var_id_decl(tokens) \
+       _get_var_id_decl(tokens FOR_LOGS(, LOG_ARGS))
+
+#define get_func_id_decl(tokens) \
+       _get_func_id_decl(tokens FOR_LOGS(, LOG_ARGS))
 
 #define get_label_id(tokens) \
        _get_label_id(tokens FOR_LOGS(, LOG_ARGS))
@@ -298,11 +306,11 @@ Node* _get_p               (Tokens* tokens FOR_LOGS(, LOG_PARAMS));
 #define get_p(tokens) \
        _get_p(tokens FOR_LOGS(, LOG_ARGS))
 
-// #define get_func_id(tokens) 
-//        _get_func_id(tokens FOR_LOGS(, LOG_ARGS))
+#define get_func_id(tokens) \
+       _get_func_id(tokens FOR_LOGS(, LOG_ARGS))
 
-// #define get_var_id(tokens) 
-//        _get_var_id(tokens FOR_LOGS(, LOG_ARGS))
+#define get_var_id(tokens) \
+       _get_var_id(tokens FOR_LOGS(, LOG_ARGS))
 
 //===================================================================
 
