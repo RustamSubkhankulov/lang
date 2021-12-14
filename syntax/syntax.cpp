@@ -159,59 +159,42 @@ Node* _get_entity(Tokens* tokens FOR_LOGS(, LOG_PARAMS))
 
 //-------------------------------------------------------------------
 
+Node* _build_func_defn_constr(FOR_LOGS(LOG_PARAMS))
+{
+    lang_log_report();
+    
+    Node* func_defn_node = (Node*)node_allocate_memory();
+    NULL_CHECK(func_defn_node);
+    NODE_INIT_KEY_NODE(func_define_node, FUNC_DEFN_ND);
+
+    ADD_RIGHT(func_define_node);
+    NODE_INIT_KEY_NODE(func_define_node->R, DEFN_ND);
+
+    ADD_LEFT(func_define_node->R);
+    NODE_INIT_KEY_NODE(func_define_node->R->L, FUNC_ND);
+;}
+
+//-------------------------------------------------------------------
+
 Node* _get_defn(Tokens* tokens FOR_LOGS(, LOG_PARAMS)) 
 {
     SYNTAX_READ_FUNC_START(tokens);
 
     REQUIRE_KEY_WORD(DEFN);
 
-    if (!TOKEN_IS_ID(CUR_TOKEN))
-    {
-        error_report(MISSING_ID);
-        tokens_dump(tokens, logs_file);
-        return NULL;
-    }
-
-    else if (was_func_declared(CUR_TOKEN->data.id_hash))
-    {
-        error_report(FUNC_REDECL);
-        tokens_dump(tokens, logs_file);
-        return NULL;
-    }
-
-    else 
-        add_func_decleration(CUR_TOKEN->data.id_hash);
-
-    Node* func_define_node = (Node*)node_allocate_memory();
-    ADD_FUNC_DEFINE_NODE(func_define_node);
-    NULL_CHECK(func_define_node);
-    NODE_INIT_KEY_NODE(func_define_node, FUNC_DEFN_ND);
-
-    ADD_RIGHT(func_define_node);
-    Node* define_node = func_define_node->R;
-    
-    NODE_INIT_KEY_NODE(define_node, DEFN_ND);
-    ADD_LEFT(define_node);
-
-    NODE_INIT_KEY_NODE(define_node->L, FUNC_ND);
-
-    Node* 
-
-    Node* func_name = (Node*)node_allocate_memory();
-    NODE_INIT_IDENTIFICATOR(func_name, CUR_TOKEN->data.id_hash);
-    CONNECT_LEFT(define_node->L, func_name);
-    tokens->counter++;
+    Node* func_defn_nd = build_func_defn_constr();
+    NULL_CHECK(func_defn_nd);
 
     int var_number = get_variables_number();
     if (var_number == -1) return NULL;
 
     Node* param_node = get_func_parameters(tokens);
     NULL_CHECK(param_node);
-    CONNECT_RIGHT(define_node->L, param_node);
+    CONNECT_RIGHT(func_defn_nd->R->L, param_node);
 
     Node* statement = get_compl_statement(tokens);
     NULL_CHECK(statement);
-    CONNECT_RIGHT(define_node, statement);
+    CONNECT_RIGHT(func_defn_nd->R, statement);
 
     remove_variables_declarations(var_number);
 
@@ -226,47 +209,14 @@ Node* _get_func_parameters(Tokens* tokens FOR_LOGS(, LOG_PARAMS))
 
     REQUIRE_KEY_WORD(BR_OPEN);
 
-    int is_permanent = 0;
-
-    if (TOKEN_IS_PERM(CUR_TOKEN))
-    {
-        is_permanent = 1;
-        tokens->counter++;
-    }
-
-    if (!TOKEN_IS_ID(CUR_TOKEN))
-    {
-        error_report(MISSING_ID);
-        tokens_dump(tokens, logs_file);
-        return NULL;
-    }
-
-    if (was_var_declared(CUR_TOKEN->data.id_hash))
-    {
-        error_report(VAR_REDECLARE);
-        tokens_dump(tokens, logs_file);
-        return NULL;
-    }
-    else
-        add_var_decl(CUR_TOKEN->data.id_hash, is_permanent);
+    Node* parameter_name = get_var_id_decl(tokens);
 
     Node* param_node = (Node*)node_allocate_memory();
     NODE_INIT_KEY_NODE(param_node, PARAMETER_ND);
 
-    ADD_RIGHT(param_node);
-    NODE_INIT_IDENTIFICATOR(param_node->R, CUR_TOKEN->data.id_hash);
-    tokens->counter++;
+    CONNECT_RIGHT(param_node, parameter_name);
 
     REQUIRE_KEY_WORD(BR_CLOSE);
-
-    if (is_permanent)
-    {
-        Node* perm_nd = node_allocate_memory();
-        NODE_INIT_KEY_NODE(perm_nd, PERM_ND);
-
-        CONNECT_RIGHT(perm_nd, node);
-        return perm_nd;
-    }
 
     return param_node;
 }
@@ -984,7 +934,7 @@ Node* _get_var_id(Tokens* tokens FOR_LOGS(, LOG_PARAMS))
         return NULL;
     }
 
-    Node* node = node_allocate_memory();
+    Node* node = (Node*)node_allocate_memory();
     NULL_CHECK(node);
 
     NODE_INIT_IDENTIFICATOR(node, CUR_TOKEN->data.id_hash);
@@ -1013,7 +963,7 @@ Node* _get_func_id(Tokens* tokens FOR_LOGS(, LOG_PARAMS))
         return NULL;
     }
 
-    Node* node = node_allocate_memory();
+    Node* node = (Node*)node_allocate_memory();
     NULL_CHECK(node);
 
     NODE_INIT_IDENTIFICATOR(node, CUR_TOKEN->data.id_hash);
@@ -1044,6 +994,12 @@ Node* _get_var_id_decl(Tokens* tokens FOR_LOGS(, LOG_PARAMS))
 
         node = node->R;
         is_permanent = 1;
+    }
+
+    else
+    {
+        node = (Node*)node_allocate_memory();
+        NULL_CHECK(node);
     }
 
     if (!TOKEN_IS_ID(CUR_TOKEN))
@@ -1102,6 +1058,38 @@ Node* _get_func_id_decl(Tokens* tokens FOR_LOGS(, LOG_PARAMS))
 
     return node;      
 } 
+
+//-------------------------------------------------------------------
+
+Node* _get_label_id_decl(Tokens* tokens FOR_LOGS(, LOG_PARAMS))
+{
+    SYNTAX_READ_FUNC_START(tokens);
+
+    if (!TOKEN_IS_ID(CUR_TOKEN))
+    {
+        error_report(MISSING_ID);
+        tokens_dump(tokens, logs_file);
+        return NULL;
+    }
+
+    else if (was_label_declared(CUR_TOKEN->dara.id_hash))
+    {
+        error_report(LABEL_REDECL);
+        tokens_dump(tokens, logs_file);
+        return NULL;
+    }
+
+    else
+        add_label_decl(CUR_TOKEN->data.id_hash);
+
+    Node* node = node_allocate_memory();
+    NULL_CHECK(node);
+
+    NODE_INIT_IDENTIFICATOR(node, CUR_TOKEN->data.id_hash);
+    tokens->counter++;
+
+    return node;
+}
 
 //===================================================================
 

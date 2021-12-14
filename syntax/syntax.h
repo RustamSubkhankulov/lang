@@ -165,6 +165,8 @@
 
 int _build_a_tree          (Tree* tree, Tokens* tokens FOR_LOGS(, LOG_PARAMS));
 
+Node* _build_func_defn_constr(FOR_LOGS(, LOG_PARAMS));
+
 Node* _get_g               (Tokens* tokens FOR_LOGS(, LOG_PARAMS));
 
 Node* _get_definitions     (Tokens* tokens FOR_LOGS(, LOG_PARAMS));
@@ -217,10 +219,15 @@ Node* _get_var_id_decl     (Tokens* tokens FOR_LOGS(, LOG_PARAMS));
 
 Node* _get_func_id_decl    (Tokens* tokens FOR_LOGS(, LOG_PARAMS));
 
+Node* _get_label_id_decl   (Tokens* tokens FOR_LOGS(, LOG_PARAMS))
+
 //-------------------------------------------------------------------
 
 // #define node_afterbuild_check(node) 
 //        _node_afterbuild_check(node FOR_LOGS(, LOG_ARGS))
+
+#define build_func_defn_constr() \
+       _build_func_defn_constr(FOR_LOGS(LOG_ARGS))
 
 #define get_ret(tokens) \
        _get_ret(tokens FOR_LOGS(, LOG_ARGS))
@@ -237,8 +244,8 @@ Node* _get_func_id_decl    (Tokens* tokens FOR_LOGS(, LOG_PARAMS));
 #define get_func_id_decl(tokens) \
        _get_func_id_decl(tokens FOR_LOGS(, LOG_ARGS))
 
-#define get_label_id(tokens) \
-       _get_label_id(tokens FOR_LOGS(, LOG_ARGS))
+#define get_label_id_decl(tokens) \
+       _get_label_id_decl(tokens FOR_LOGS(, LOG_ARGS))
 
 #define get_func_parameters(tokens) \
        _get_func_parameters(tokens FOR_LOGS(, LOG_ARGS))
