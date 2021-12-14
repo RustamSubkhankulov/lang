@@ -5,6 +5,18 @@
 #include "../general/general.h"
 #include "../syntax/syntax_id.h"
 
+//===================================================================
+
+#define CUR_NSPACE trans->cur_nspace
+
+#define TREE trans->tree
+
+#define NSPACES trans->nspaces
+
+#define NSPACES_NUM trans->nspaces_num
+
+//===================================================================
+
 #define L left_son
 #define R right_son
 
@@ -17,6 +29,248 @@ static const char* Register = "dx";
 static const char* Argument_register = "ax";
 
 static const char* Return_register = "ex";
+
+//===================================================================
+
+int _trans_struct_ctor(Trans* trans, FILE* asm_file, Tree* tree FOR_LOGS(, LOG_PARAMS))
+{
+    lang_log_report();
+    TRANS_PTR_CHECK(trans);
+    
+    if (!trans)
+    {
+        error_report(INV_TRANS_PRT);
+        return -1;
+    }
+
+    if (!asm_file)
+    {
+        error_report(INV_FILE_PTR);
+        return -1;
+    }
+
+    if (!tree)
+    {
+        error_report(INV_TREE_PTR);
+        return -1;
+    }
+
+    trans->asm_file = asm_file;
+    trans->tree     = tree;
+
+    trans->nspaces_num = 0;
+}
+
+//-------------------------------------------------------------------
+
+int _trans_struct_dump(Trans* trans FOR_LOGS(, LOG_PARAMS))
+{
+    lang_log_report();
+    TRANS_PTR_CHECK(trans);
+
+    fprintf(logs_file, "<pre><div class=\"outline\"  "
+                                   "style = \"background-color:lightgrey;\" "
+                                   "style = \"text-align: center;\">\n");
+
+    fprintf(asm_file, "\n <b> Trans structure dump </b> \n");
+
+    fprintf(logs_file, "\n Assembler FILE pointer: <%p> \n", trans->asm_file);
+    fprintf(logs_file, "\n Tree structure pointer: <%p> \n", trans->tree);
+
+    fprintf(logs_file, "\n Namespaces number: %d \n",          trans->nspaces_num);
+    fprintf(logs_file, "\n Namespaces array pointer: <%p> \n", trans->nspaces);
+    fprintf(logs_file, "\n Current namespace:        <%p> \n", trans->cur_nspace);
+    
+    for (int counter = 0; counter < trans->nspaces_num; counter++)
+    {
+        fprintf(logs_file, "\n");
+        fprintf(logs_file, "\n <b> Namespace </b><%p> \n",   trans->nspaces[counter]);
+        fprintf(logs_file, "\n Variables array <%p>",        trans->nspaces[counter].vars);
+        fprintf(logs_file, "\n Vraiables array capcity: %d", trans->nspaces[counter].var_cap);
+        fprintf(logs_file, "\n Variables number: %d",        trans->nspaces[counter].bar_num);
+
+        for (int ct = 0; ct < trans->nspaces[counter].var_num; ct++)
+        {
+            fprintf(logs_file, "\n[%d] Hash: %ld Ram position: %d", trans->nspaces[counter].vars[ct].hash,
+                                                                    trans->nspaces[counter].vars[ct].ram_pos);
+        }
+        fprintf(logs_file, "\n\n");
+    }
+
+    fprintf(logs_file, "\n</div></pre>\n");
+}
+
+//-------------------------------------------------------------------
+
+int _trans_struct_dtor(Trans* trans FOR_LOGS(, LOG_PARAMS))
+{
+    lang_log_report();
+    TRANS_PTR_CHECK(trans);
+
+    if (trans->nspaces)
+    {
+        for (int counter = 0; counter < trans->nspaces_num; counter++)
+        {
+            if (trans->nspaces[counter].vars)
+                free(trans->nsapces[counter].vars);
+        }
+
+        free(trans->nspaces);
+    }
+
+    trans->asm_file    = 0;
+    trans->tree        = 0;
+
+    trans->nspaces     = 0;
+    trans->nspaces_num = 0;
+    trans->nspaces_cap = 0;
+
+    return 0;
+}
+
+//-------------------------------------------------------------------
+
+int _add_nspace(Trans* trans FOR_LOGS(, LOG_PARAMS))
+{
+    lang_log_report();
+    TRANS_PTR_CHECK(trans);
+
+    if (!NSPACES_NUM)
+    {
+        NSPACES = (Nspace*)calloc(sizeof(Npace), 1);
+        NULL_CHECK(NSPACES);
+    }
+
+    else
+    {
+        NSPACES = (Nspace*)my_recalloc(nspaces, (size_t)(NSPACES_NUM + 1), 
+                                                (size_t) NSPACES_NUM, 
+                                                 sizeof (Nspace));
+        NULL_CHECK(NSPASEC);
+    }
+
+    NSPACES_NUM++;
+    CUR_NSPACE = NSPASEC[NSPACES_NUM - 1];
+
+    return 0;
+}
+
+//-------------------------------------------------------------------
+
+int _rm_nspace(Trans* trans FOR_LOGS(, LOG_PARAMS))
+{
+    lang_log_report();
+    TRANS_PTR_CHECK(trans);
+
+    if (CUR_NSPACE->vars)
+        free(CUR_NSPACE->vars);
+
+    if (NSPACES_NUM == 1)
+    {
+        free(NSPACES);
+        NSPASEC = NULL;
+    }
+
+    else
+    {
+        NSPASEC = (Nspace*)my_recalloc(NSPACES, (size_t)(NSPACES_NUM - 1), 
+                                                (size_t) NSPASEC, 
+                                                 sizeof (Nspace));
+        NULL_CHECK(NSPASEC);
+    }
+
+    NSPACES_NUM--;
+
+    if (NSPASEC_NUM)
+        CUR_NSPACE = NSPASEC[NSPASEC_NUM - 1];
+    else
+        CUR_NSPACE = NULL;
+
+    return 0;
+}
+
+//-------------------------------------------------------------------
+
+int _add_var_decl(Trans* trans, int64_t var_hash FOR_LOGS(, LOG_PARAMS))
+{
+    lang_log_report();
+    TRANS_PTR_CHECK(trans);
+
+    if (CUR_NSPACE->var_num == CUR_NSPACE->var_cap - 1)
+    {
+        int ret = var_arr_increase(CUR_NSPACE);
+        RETURN_CHECK(ret);
+    }
+
+    CUR_NSPACE->vars[CUR_NSPACE->var_num].hash = var_hash;
+    CUR_NSPACE->var_num++;
+
+    return 0;
+}  
+
+//-------------------------------------------------------------------
+
+int _was_var_decl(Trans* trans, int64_t hash FOR_LOGS(, LOG_PARAMS))
+{
+    lang_log_report();
+    TRANS_PTR_CHECK(trans);
+
+    for (int counter = 0; counter < NSPASEC_NUM; counter++)
+
+        for (int ct = 0; ct < NSPACES[counter].var_num; ct++)
+        {
+            if (hash == NSPACES[counter].vars[ct].hash)
+                return 1;
+        }
+
+    return 0;
+}
+
+//-------------------------------------------------------------------
+
+int _get_var_ram_pos(Trans* trans, int64_t hash FOR_LOGS(, LOG_PARAMS))
+{
+    lang_log_report();
+    TRANS_PTR_CHECK(trans);
+
+    for (int counter = 0; counter < NSPASEC_NUM; counter++)
+
+        for (int ct = 0; ct < NSPACES[counter].var_num; ct++)
+        {
+            if (hash == NSPASEC[counter].vars[ct].hash)
+                return NSPACES[counter].vars[ct].ram_pos;
+        }
+
+    error_report(VAR_UNDECLARED);
+    return -1;
+}
+
+//-------------------------------------------------------------------
+
+int _var_arr_increase(Nspace* nspace FOR_LOGS(, LOG_PARAMS))
+{
+    lang_log_report();
+
+    if (!nspace->var_number)
+    {
+        nspace->vars = (Var*)calloc(Start_var_arr_size, sixeof(Var));
+        NULL_CHECK(nsapce->vars);
+
+        nspace->var_cap = Start_var_arr_size;
+    }
+
+    else
+    {
+        nspace->vars = (Var*)my_recalloc(nspace->vars, (size_t)(nspace->var_num * 2), 
+                                                       (size_t) nspace->var_num, 
+                                                        sizeof(Var));
+        NULL_CHECK(nspace->vars);
+
+        nspace->var_cap *= 2;
+    }
+
+    return 0;
+}
 
 //===================================================================
 
@@ -77,6 +331,8 @@ int _trans_tree_to_asm(Tree* tree, FILE* asm_file FOR_LOGS(, LOG_PARAMS))
 
     fprintf(asm_file, "\n main: \n");
 
+    int ret = trans_entities(tree->root->L, asm_file);
+
     Node* entity = tree->root->L;
     while(entity)
     {
@@ -104,7 +360,33 @@ int _trans_tree_to_asm(Tree* tree, FILE* asm_file FOR_LOGS(, LOG_PARAMS))
 
 //===================================================================
 
-int _trans_definitions(Node* node, FILE* asm_file FOR_LOGS(, LOG_PARAMS))
+int _trans_entiies(Node* node, Trans* trans FOR_LOGS(, LOG_PARAMS))
+{
+    TRANS_START_CHECK(node, asm_file);
+
+    while (node)
+    {
+        if (NODE_IS_STAT(node))
+        {
+            ret = trans_statement(node, asm_file);
+            RETURN_CHECK(ret);
+        }
+
+        else if (NODE_IS_LABEL(node))
+        {
+            ret = trans_label_decl(node, asm_file);
+            RETURN_CHECK(ret);
+        }
+
+        node = node->L;
+    }
+
+    return 0;
+}
+
+//===================================================================
+
+int _trans_definitions(Node* node, Trans* trans FOR_LOGS(, LOG_PARAMS))
 {
     TRANS_START_CHECK(node, asm_file);
 
@@ -123,7 +405,7 @@ int _trans_definitions(Node* node, FILE* asm_file FOR_LOGS(, LOG_PARAMS))
 
 //-------------------------------------------------------------------
 
-int _trans_func_defn(Node* node, FILE* asm_file FOR_LOGS(, LOG_PARAMS))
+int _trans_func_defn(Node* node, Trans* trans FOR_LOGS(, LOG_PARAMS))
 {
     TRANS_START_CHECK(node, asm_file);
 
@@ -160,7 +442,7 @@ int _trans_func_defn(Node* node, FILE* asm_file FOR_LOGS(, LOG_PARAMS))
 
 //===================================================================
 
-int _trans_statement(Node* node, FILE* asm_file FOR_LOGS(, LOG_PARAMS))
+int _trans_statement(Node* node, Trans* trans FOR_LOGS(, LOG_PARAMS))
 {
     TRANS_START_CHECK(node, asm_file);
 
@@ -225,7 +507,7 @@ int _trans_statement(Node* node, FILE* asm_file FOR_LOGS(, LOG_PARAMS))
 
 //-------------------------------------------------------------------
 
-int _trans_compl_stat(Node* node, FILE* asm_file FOR_LOGS(,LOG_PARAMS))
+int _trans_compl_stat(Node* node, Trans* trans FOR_LOGS(,LOG_PARAMS))
 {
     TRANS_START_CHECK(node, asm_file);
 
@@ -244,7 +526,7 @@ int _trans_compl_stat(Node* node, FILE* asm_file FOR_LOGS(,LOG_PARAMS))
 
 //-------------------------------------------------------------------
 
-int _trans_label_decl(Node* node, FILE* asm_file FOR_LOGS(, LOG_PARAMS))
+int _trans_label_decl(Node* node, Trans* trans FOR_LOGS(, LOG_PARAMS))
 {
     TRANS_START_CHECK(node, asm_file);
 
@@ -261,7 +543,7 @@ int _trans_label_decl(Node* node, FILE* asm_file FOR_LOGS(, LOG_PARAMS))
 
 //-------------------------------------------------------------------
 
-int _trans_cond(Node* node, FILE* asm_file FOR_LOGS(, LOG_PARAMS))
+int _trans_cond(Node* node, Trans* trans FOR_LOGS(, LOG_PARAMS))
 {
     TRANS_START_CHECK(node, asm_file);
 
@@ -293,7 +575,7 @@ int _trans_cond(Node* node, FILE* asm_file FOR_LOGS(, LOG_PARAMS))
 
 //-------------------------------------------------------------------
 
-int _trans_func_call(Node* node, FILE* asm_file FOR_LOGS(, LOG_PARAMS))
+int _trans_func_call(Node* node, Trans* trans FOR_LOGS(, LOG_PARAMS))
 {
     TRANS_START_CHECK(node, asm_file);
 
@@ -317,7 +599,7 @@ int _trans_func_call(Node* node, FILE* asm_file FOR_LOGS(, LOG_PARAMS))
 
 //-------------------------------------------------------------------
 
-int _trans_ass(Node* node, FILE* asm_file FOR_LOGS(, LOG_PARAMS))
+int _trans_ass(Node* node, Trans* trans FOR_LOGS(, LOG_PARAMS))
 {
     TRANS_START_CHECK(node, asm_file);
 
@@ -334,7 +616,7 @@ int _trans_ass(Node* node, FILE* asm_file FOR_LOGS(, LOG_PARAMS))
 
 //-------------------------------------------------------------------
 
-int _trans_decl(Node* node, FILE* asm_file FOR_LOGS(, LOG_PARAMS))
+int _trans_decl(Node* node, Trans* trans FOR_LOGS(, LOG_PARAMS))
 {
     TRANS_START_CHECK(node, asm_file);
 
@@ -371,7 +653,7 @@ int _trans_decl(Node* node, FILE* asm_file FOR_LOGS(, LOG_PARAMS))
 
 //-------------------------------------------------------------------
 
-int _trans_cycle(Node* node, FILE* asm_file FOR_LOGS(, LOG_PARAMS))
+int _trans_cycle(Node* node, Trans* trans FOR_LOGS(, LOG_PARAMS))
 {
     TRANS_START_CHECK(node, asm_file);
 
@@ -397,7 +679,7 @@ int _trans_cycle(Node* node, FILE* asm_file FOR_LOGS(, LOG_PARAMS))
 
 //-------------------------------------------------------------------
 
-int _trans_print(Node* node, FILE* asm_file FOR_LOGS(, LOG_PARAMS))
+int _trans_print(Node* node, Trans* trans FOR_LOGS(, LOG_PARAMS))
 {
     TRANS_START_CHECK(node, asm_file);
 
@@ -411,7 +693,7 @@ int _trans_print(Node* node, FILE* asm_file FOR_LOGS(, LOG_PARAMS))
 
 //-------------------------------------------------------------------
 
-int _trans_scan(Node* node, FILE* asm_file FOR_LOGS(, LOG_PARAMS))
+int _trans_scan(Node* node, Trans* trans FOR_LOGS(, LOG_PARAMS))
 {
     TRANS_START_CHECK(node, asm_file);
 
@@ -432,7 +714,7 @@ int _trans_scan(Node* node, FILE* asm_file FOR_LOGS(, LOG_PARAMS))
 
 //-------------------------------------------------------------------
 
-int _trans_std_func_call(Node* node, FILE* asm_file FOR_LOGS(, LOG_PARAMS))
+int _trans_std_func_call(Node* node, Trans* trans FOR_LOGS(, LOG_PARAMS))
 {
     TRANS_START_CHECK(node, asm_file);
 
@@ -464,7 +746,7 @@ int _trans_std_func_call(Node* node, FILE* asm_file FOR_LOGS(, LOG_PARAMS))
 
 //-------------------------------------------------------------------
 
-int _trans_label_jump(Node* node, FILE* asm_file FOR_LOGS(, LOG_PARAMS))
+int _trans_label_jump(Node* node, Trans* trans FOR_LOGS(, LOG_PARAMS))
 {
     TRANS_START_CHECK(node, asm_file);
 
@@ -481,7 +763,7 @@ int _trans_label_jump(Node* node, FILE* asm_file FOR_LOGS(, LOG_PARAMS))
 
 //-------------------------------------------------------------------
 
-int _trans_ret(Node* node, FILE* asm_file FOR_LOGS(, LOG_PARAMS))
+int _trans_ret(Node* node, Trans* trans FOR_LOGS(, LOG_PARAMS))
 {
     TRANS_START_CHECK(node, asm_file);
 
@@ -514,7 +796,7 @@ int _node_is_cmp_sign(Node* node FOR_LOGS(, LOG_PARAMS))
 
 //===================================================================
 
-int _trans_exp(Node* node, FILE* asm_file FOR_LOGS(, LOG_PARAMS))
+int _trans_exp(Node* node, Trans* trans FOR_LOGS(, LOG_PARAMS))
 {
     TRANS_START_CHECK(node, asm_file);
 
@@ -575,7 +857,7 @@ int _trans_exp(Node* node, FILE* asm_file FOR_LOGS(, LOG_PARAMS))
 
 //===================================================================
 
-int _trans_constant(Node* node, FILE* asm_file FOR_LOGS(, LOG_PARAMS))
+int _trans_constant(Node* node, Trans* trans FOR_LOGS(, LOG_PARAMS))
 {
     TRANS_START_CHECK(node, asm_file);
 
@@ -586,7 +868,7 @@ int _trans_constant(Node* node, FILE* asm_file FOR_LOGS(, LOG_PARAMS))
 
 //-------------------------------------------------------------------
 
-int _trans_variable(Node* node, FILE* asm_file FOR_LOGS(, LOG_PARAMS))
+int _trans_variable(Node* node, Trans* trans FOR_LOGS(, LOG_PARAMS))
 {
     TRANS_START_CHECK(node, asm_file);
 
@@ -602,7 +884,7 @@ int _trans_variable(Node* node, FILE* asm_file FOR_LOGS(, LOG_PARAMS))
 
 //-------------------------------------------------------------------
 
-int _trans_bin_operand(Node* node, FILE* asm_file FOR_LOGS(, LOG_PARAMS))
+int _trans_bin_operand(Node* node, Trans* trans FOR_LOGS(, LOG_PARAMS))
 {
     TRANS_START_CHECK(node, asm_file);
 
@@ -686,7 +968,7 @@ int _trans_bin_operand(Node* node, FILE* asm_file FOR_LOGS(, LOG_PARAMS))
 
 //-------------------------------------------------------------------
 
-int _trans_unar_operand(Node* node, FILE* asm_file FOR_LOGS(, LOG_PARAMS))
+int _trans_unar_operand(Node* node, Trans* trans FOR_LOGS(, LOG_PARAMS))
 {
     TRANS_START_CHECK(node, asm_file);
 

@@ -636,3 +636,6 @@ Invalid operand code in node)
 
 DEF_ERR(933, ASS_TO_PERM,
 Assignment to the permanent value variable)
+
+DEF_ERR(934, INV_TRANS_PTR,
+Invalid pointer to tre trans main structure)
