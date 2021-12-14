@@ -7,9 +7,11 @@
 
 //===================================================================
 
-int In_func_flag = 0;
+//===================================================================
+
+// int In_func_flag = 0;
  
-int In_defn_flag = 0;  
+// int In_defn_flag = 0;  
 
 //===================================================================
 
@@ -33,55 +35,55 @@ static int Ram_pos = 0;
 
 //===================================================================
 
-int _in_func_flag_on( FOR_LOGS(LOG_PARAMS))
-{
-    lang_log_report();
+// int _in_func_flag_on( FOR_LOGS(LOG_PARAMS))
+// {
+//     lang_log_report();
 
-    In_func_flag = 1;
-    return 0;
-}
-
-//-------------------------------------------------------------------
-
-int _in_func_flag_off( FOR_LOGS(LOG_PARAMS))
-{
-    lang_log_report();
-
-    In_func_flag = 0;
-    return 0;
-}
+//     In_func_flag = 1;
+//     return 0;
+// }
 
 //-------------------------------------------------------------------
 
-int _in_defn_flag_on( FOR_LOGS(LOG_PARAMS))
-{
-    lang_log_report();
+// int _in_func_flag_off( FOR_LOGS(LOG_PARAMS))
+// {
+//     lang_log_report();
 
-    In_defn_flag = 1;
-    return 0;
-}
+//     In_func_flag = 0;
+//     return 0;
+// }
 
 //-------------------------------------------------------------------
 
-int _in_defn_flag_off( FOR_LOGS(LOG_PARAMS))
-{
-    lang_log_report();
+// int _in_defn_flag_on( FOR_LOGS(LOG_PARAMS))
+// {
+//     lang_log_report();
 
-    In_defn_flag = 0;
-    return 0;
-}
+//     In_defn_flag = 1;
+//     return 0;
+// }
+
+//-------------------------------------------------------------------
+
+// int _in_defn_flag_off( FOR_LOGS(LOG_PARAMS))
+// {
+//     lang_log_report();
+
+//     In_defn_flag = 0;
+//     return 0;
+// }
 
 //===================================================================
 
-int _free_label_declarations( FOR_LOGS(LOG_PARAMS))
-{
-    if (Labels_decl)
-    {
-        free(Labels_decl);
-    }
+// int _free_label_declarations( FOR_LOGS(LOG_PARAMS))
+// {
+//     if (Labels_decl)
+//     {
+//         free(Labels_decl);
+//     }
 
-    return 0;
-}
+//     return 0;
+// }
 
 //-------------------------------------------------------------------
 

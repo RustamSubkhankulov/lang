@@ -338,18 +338,18 @@ int _trans_decl(Node* node, FILE* asm_file FOR_LOGS(, LOG_PARAMS))
 {
     TRANS_START_CHECK(node, asm_file);
 
-    if (NODE_IS_ID(node->R))
+    int64_t var_hash = 0;
+
+    if (NODE_IS_ID(node->L))
     {
-        add_var_decl(node->R->data.id_hash, 0);
-        return 0;
+        add_var_decl(node->L->data.id_hash, 0);
+        var_hash = node->L->data.id_hash;
     }
 
-    else if (NODE_IS_ASS(node->R))
+    else if (NODE_IS_PERM(node->L) && NODE_IS_ID(node->L->R))
     {
-        add_var_decl(node->R->L->data.id_hash, 0);
-        
-        int ret = trans_ass(node->R, asm_file);
-        RETURN_CHECK(ret);
+        add_var_decl(node->L->R->data.id_hash, 1);
+        var_hash = node->L->R->data.id_hash;
     }
 
     else
@@ -357,6 +357,14 @@ int _trans_decl(Node* node, FILE* asm_file FOR_LOGS(, LOG_PARAMS))
         error_report(INV_TREE);
         return -1;
     }
+
+    int ret = trans_exp(node->R, asm_file);
+    RETURN_CHECK(ret);
+
+    int ram_pos = get_var_pos(var_hash);
+    RETURN_CHECK(ram_pos);
+
+    fprintf(asm_file, "\n POP [%s + %d] \n", Register, ram_pos);
 
     return 0;
 }

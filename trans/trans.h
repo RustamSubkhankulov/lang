@@ -7,6 +7,8 @@
 
 //=========================================================
 
+//=========================================================
+
 #define TRANS_START_CHECK(node, file) {                     \
                                                             \
     do                                                      \
@@ -26,7 +28,7 @@
 
 #define NODE_IS_GOTO(node)      (node->data_type == KEY_NODE && node->data.key_node_code == GOTO_ND)
 
-#define NODE_IS_PERM(node)      (node->data_type == KEY_NODE && node->data.ley_nde_code == PERM_ND)
+#define NODE_IS_PERM(node)      (node->data_type == KEY_NODE && node->data.key_node_code == PERM_ND)
 
 #define NODE_IS_LABEL(node)     (node->data_type == KEY_NODE && node->data.key_node_code == LABEL_ND)
 
