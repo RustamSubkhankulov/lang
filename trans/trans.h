@@ -13,15 +13,15 @@ const int Start_var_arr_size = 5;
 
 struct Var
 {
-    int64_t id;
-    int pos;
+    int64_t hash;
+    int ram_pos;
 };
 
 //---------------------------------------------------------
 
 struct Nspace
 {
-    int var_number;
+    int var_num;
     int var_cap;
     Var* vars;
 
@@ -34,6 +34,7 @@ struct Trans
 {
     Trans* trans;
     Tree* tree;
+    FILE* asm_file;
 
     Nspace* nspaces;
     Nspace* cur_nspace;
@@ -51,7 +52,7 @@ struct Trans
     {                                                       \
         lang_log_report();                                  \
         NODE_PTR_CHECK(node);                               \
-        TRANS_PTR_CHECK(trans);                             \
+        TRANS_STRUCT_PTR_CHECK(trans);                      \
         FILE_PTR_CHECK(trans->asm_file);                    \
         TREE_PTR_CHECK(trans->tree);                        \
         printf("\n\n node <%p>\n\n", node);                 \
@@ -67,8 +68,20 @@ struct Trans
     {                                                       \
         if (!trans)                                         \
         {                                                   \
-            error_report(INV_TRANS_PRT);                    \
+            error_report(INV_TRANS_PTR);                    \
             return NULL;                                    \
+        }                                                   \
+    } while(0);                                             \
+}
+
+#define TRANS_STRUCT_PTR_CHECK(trans) {                     \
+                                                            \
+    do                                                      \
+    {                                                       \
+        if (!trans)                                         \
+        {                                                   \
+            error_report(INV_TRANS_PTR);                    \
+            return -1;                                      \
         }                                                   \
     } while(0);                                             \
 }
@@ -109,7 +122,7 @@ struct Trans
 
 //=========================================================
 
-int _trans_tree_to_asm  (Tree* tree, Trans* trans FOR_LOGS(, LOG_PARAMS));
+int _trans_tree_to_asm  (Tree* tree, FILE* asm_file FOR_LOGS(, LOG_PARAMS));
 
 int _trans_compl_stat   (Node* node, Trans* trans FOR_LOGS(,LOG_PARAMS));
 
@@ -171,7 +184,7 @@ int _trans_struct_ctor(Trans* trans, FILE* asm_file, Tree* tree
 
 int _add_nspace(Trans* trans FOR_LOGS(, LOG_PARAMS));
 
-int _rn_nspace (Trans* trans FOR_LOGS(, LOG_PARAMS));
+int _rm_nspace (Trans* trans FOR_LOGS(, LOG_PARAMS));
 
 int _var_arr_increase(Nspace* nspace FOR_LOGS(, LOG_PARAMS));
 
@@ -187,20 +200,20 @@ int _trans_struct_dtor(Trans* trans FOR_LOGS(, LOG_PARAMS));
 
 int _move_memory_place(Trans* trans FOR_LOGS(, LOG_PARAMS));
 
-int _move_memory_place_back(int offset FOR_LOGS(, LOG_PARAMS));
+int _move_memory_place_back(int offset, FILE* asm_file FOR_LOGS(, LOG_PARAMS));
 
 int _get_sum_var_num(Trans* trans FOR_LOGS(, LOG_PARAMS));
 
 //===================================================================
 
 #define get_sum_var_num(trans) \
-       _get_smm_var_num(trans FOR_LOGS(, LOG_ARGS))
+       _get_sum_var_num(trans FOR_LOGS(, LOG_ARGS))
 
 #define trans_struct_ctor(trans, asm_file, tree) \
        _trans_struct_ctor(trans, asm_file, tree FOR_LOGS(, LOG_ARGS))
 
-#define trans_struct_dtor(trans, asm_file, tree) \
-       _trans_struct_dtor(trans, asm_file, tree FOR_LOGS(, LOG_ARGS))
+#define trans_struct_dtor(trans) \
+       _trans_struct_dtor(trans FOR_LOGS(, LOG_ARGS))
        
 #define trans_sturct_dump(trans) \
        _trans_struct_dump(trans FOR_LOGS(, LOG_ARGS))
@@ -226,8 +239,8 @@ int _get_sum_var_num(Trans* trans FOR_LOGS(, LOG_PARAMS));
 #define move_memory_place(trans) \
        _move_memory_place(trans FOR_LOGS(, LOG_ARGS))
 
-#define move_memory_place_back(offset) \
-       _move_memory_place_back(offset FOR_LOGS(, LOG_ARGS))
+#define move_memory_place_back(offset, asm_file) \
+       _move_memory_place_back(offset, asm_file FOR_LOGS(, LOG_ARGS))
 
 //===================================================================
 

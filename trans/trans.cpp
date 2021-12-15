@@ -14,7 +14,7 @@
 
 #define NSPACES_NUM trans->nspaces_num
 
-#define ASM_FILE asm_file
+#define ASM_FILE trans->asm_file
 
 //===================================================================
 
@@ -27,7 +27,7 @@ static const char* Register = "dx";
 
 //static const char* Service_register = "fx";
 
-static const char* Argument_register = "ax";
+//static const char* Argument_register = "ax";
 
 static const char* Return_register = "ex";
 
@@ -36,13 +36,8 @@ static const char* Return_register = "ex";
 int _trans_struct_ctor(Trans* trans, FILE* asm_file, Tree* tree FOR_LOGS(, LOG_PARAMS))
 {
     lang_log_report();
-    TRANS_PTR_CHECK(trans);
     
-    if (!trans)
-    {
-        error_report(INV_TRANS_PRT);
-        return -1;
-    }
+    TRANS_STRUCT_PTR_CHECK(trans)
 
     if (!asm_file)
     {
@@ -60,6 +55,8 @@ int _trans_struct_ctor(Trans* trans, FILE* asm_file, Tree* tree FOR_LOGS(, LOG_P
     trans->tree     = tree;
 
     trans->nspaces_num = 0;
+
+    return 0;
 }
 
 //-------------------------------------------------------------------
@@ -67,7 +64,7 @@ int _trans_struct_ctor(Trans* trans, FILE* asm_file, Tree* tree FOR_LOGS(, LOG_P
 int _trans_struct_dump(Trans* trans FOR_LOGS(, LOG_PARAMS))
 {
     lang_log_report();
-    TRANS_PTR_CHECK(trans);
+    TRANS_STRUCT_PTR_CHECK(trans)
 
     fprintf(logs_file, "<pre><div class=\"outline\"  "
                                    "style = \"background-color:lightgrey;\" "
@@ -85,20 +82,23 @@ int _trans_struct_dump(Trans* trans FOR_LOGS(, LOG_PARAMS))
     for (int counter = 0; counter < trans->nspaces_num; counter++)
     {
         fprintf(logs_file, "\n");
-        fprintf(logs_file, "\n <b> Namespace </b><%p> \n",   trans->nspaces[counter]);
+        fprintf(logs_file, "\n <b> Namespace </b><%p> \n", &(trans->nspaces[counter]));
         fprintf(logs_file, "\n Variables array <%p>",        trans->nspaces[counter].vars);
         fprintf(logs_file, "\n Vraiables array capcity: %d", trans->nspaces[counter].var_cap);
-        fprintf(logs_file, "\n Variables number: %d",        trans->nspaces[counter].bar_num);
+        fprintf(logs_file, "\n Variables number: %d",        trans->nspaces[counter].var_num);
 
         for (int ct = 0; ct < trans->nspaces[counter].var_num; ct++)
         {
-            fprintf(logs_file, "\n[%d] Hash: %ld Ram position: %d", trans->nspaces[counter].vars[ct].hash,
+            fprintf(logs_file, "\n[%d] Hash: %ld Ram position: %d", counter,
+                                                                    trans->nspaces[counter].vars[ct].hash,
                                                                     trans->nspaces[counter].vars[ct].ram_pos);
         }
         fprintf(logs_file, "\n\n");
     }
 
     fprintf(logs_file, "\n</div></pre>\n");
+
+    return 0;
 }
 
 //-------------------------------------------------------------------
@@ -106,14 +106,14 @@ int _trans_struct_dump(Trans* trans FOR_LOGS(, LOG_PARAMS))
 int _trans_struct_dtor(Trans* trans FOR_LOGS(, LOG_PARAMS))
 {
     lang_log_report();
-    TRANS_PTR_CHECK(trans);
+    TRANS_STRUCT_PTR_CHECK(trans)
 
     if (trans->nspaces)
     {
         for (int counter = 0; counter < trans->nspaces_num; counter++)
         {
             if (trans->nspaces[counter].vars)
-                free(trans->nsapces[counter].vars);
+                free(trans->nspaces[counter].vars);
         }
 
         free(trans->nspaces);
@@ -124,7 +124,6 @@ int _trans_struct_dtor(Trans* trans FOR_LOGS(, LOG_PARAMS))
 
     trans->nspaces     = 0;
     trans->nspaces_num = 0;
-    trans->nspaces_cap = 0;
 
     return 0;
 }
@@ -134,24 +133,26 @@ int _trans_struct_dtor(Trans* trans FOR_LOGS(, LOG_PARAMS))
 int _add_nspace(Trans* trans FOR_LOGS(, LOG_PARAMS))
 {
     lang_log_report();
-    TRANS_PTR_CHECK(trans);
+    TRANS_STRUCT_PTR_CHECK(trans);
 
     if (!NSPACES_NUM)
     {
-        NSPACES = (Nspace*)calloc(sizeof(Npace), 1);
-        NULL_CHECK(NSPACES);
+        NSPACES = (Nspace*)calloc(sizeof(Nspace), 1);
+        if (!NSPACES)
+            return -1;
     }
 
     else
     {
-        NSPACES = (Nspace*)my_recalloc(nspaces, (size_t)(NSPACES_NUM + 1), 
+        NSPACES = (Nspace*)my_recalloc(NSPACES, (size_t)(NSPACES_NUM + 1), 
                                                 (size_t) NSPACES_NUM, 
                                                  sizeof (Nspace));
-        NULL_CHECK(NSPASEC);
+        if(!NSPACES)
+            return -1;
     }
 
     NSPACES_NUM++;
-    CUR_NSPACE = &(NSPASEC[NSPACES_NUM - 1]);
+    CUR_NSPACE = &(NSPACES[NSPACES_NUM - 1]);
 
     return 0;
 }
@@ -161,7 +162,7 @@ int _add_nspace(Trans* trans FOR_LOGS(, LOG_PARAMS))
 int _rm_nspace(Trans* trans FOR_LOGS(, LOG_PARAMS))
 {
     lang_log_report();
-    TRANS_PTR_CHECK(trans);
+    TRANS_STRUCT_PTR_CHECK(trans);
 
     if (CUR_NSPACE->vars)
         free(CUR_NSPACE->vars);
@@ -169,21 +170,22 @@ int _rm_nspace(Trans* trans FOR_LOGS(, LOG_PARAMS))
     if (NSPACES_NUM == 1)
     {
         free(NSPACES);
-        NSPASEC = NULL;
+        NSPACES = NULL;
     }
 
     else
     {
-        NSPASEC = (Nspace*)my_recalloc(NSPACES, (size_t)(NSPACES_NUM - 1), 
-                                                (size_t) NSPASEC, 
+        NSPACES = (Nspace*)my_recalloc(NSPACES, (size_t)(NSPACES_NUM - 1), 
+                                                (size_t) NSPACES, 
                                                  sizeof (Nspace));
-        NULL_CHECK(NSPASEC);
+        if (!NSPACES)
+            return -1;
     }
 
     NSPACES_NUM--;
 
-    if (NSPASEC_NUM)
-        CUR_NSPACE = &(NSPASEC[NSPASEC_NUM - 1]);
+    if (NSPACES_NUM)
+        CUR_NSPACE = &(NSPACES[NSPACES_NUM - 1]);
     else
         CUR_NSPACE = NULL;
 
@@ -195,7 +197,7 @@ int _rm_nspace(Trans* trans FOR_LOGS(, LOG_PARAMS))
 int _add_var_decl(Trans* trans, int64_t var_hash FOR_LOGS(, LOG_PARAMS))
 {
     lang_log_report();
-    TRANS_PTR_CHECK(trans);
+    TRANS_STRUCT_PTR_CHECK(trans);
 
     if (CUR_NSPACE->var_num == CUR_NSPACE->var_cap - 1 || CUR_NSPACE->var_num == 0)
     {
@@ -205,7 +207,7 @@ int _add_var_decl(Trans* trans, int64_t var_hash FOR_LOGS(, LOG_PARAMS))
 
     for (int counter = 0; counter < CUR_NSPACE->var_num; counter++)
     {
-        if (var_hash = CUR_NSPACE->vars[counter].hash)
+        if (var_hash == CUR_NSPACE->vars[counter].hash)
         {
             error_report(VAR_REDECLARE);
             return -1;
@@ -226,7 +228,7 @@ int _add_var_decl(Trans* trans, int64_t var_hash FOR_LOGS(, LOG_PARAMS))
 int _was_var_decl(Trans* trans, int64_t hash FOR_LOGS(, LOG_PARAMS))
 {
     lang_log_report();
-    TRANS_PTR_CHECK(trans);
+    TRANS_STRUCT_PTR_CHECK(trans)
 
     if (trans->in_func_flag)
     {
@@ -238,7 +240,7 @@ int _was_var_decl(Trans* trans, int64_t hash FOR_LOGS(, LOG_PARAMS))
 
     else
     {
-        for (int counter = 0; counter < NSPASEC_NUM; counter++)
+        for (int counter = 0; counter < NSPACES_NUM; counter++)
 
             for (int ct = 0; ct < NSPACES[counter].var_num; ct++)
 
@@ -254,7 +256,7 @@ int _was_var_decl(Trans* trans, int64_t hash FOR_LOGS(, LOG_PARAMS))
 int _get_var_ram_pos(Trans* trans, int64_t hash FOR_LOGS(, LOG_PARAMS))
 {
     lang_log_report();
-    TRANS_PTR_CHECK(trans);
+    TRANS_STRUCT_PTR_CHECK(trans)
 
     if (trans->in_func_flag)
     {
@@ -266,11 +268,11 @@ int _get_var_ram_pos(Trans* trans, int64_t hash FOR_LOGS(, LOG_PARAMS))
 
     else
     {
-        for (int counter = 0; counter < NSPASEC_NUM; counter++)
+        for (int counter = 0; counter < NSPACES_NUM; counter++)
 
             for (int ct = 0; ct < NSPACES[counter].var_num; ct++)
 
-                if (hash == NSPASEC[counter].vars[ct].hash)
+                if (hash == NSPACES[counter].vars[ct].hash)
                     return NSPACES[counter].vars[ct].ram_pos;
     }
 
@@ -284,10 +286,11 @@ int _var_arr_increase(Nspace* nspace FOR_LOGS(, LOG_PARAMS))
 {
     lang_log_report();
 
-    if (!nspace->var_number)
+    if (!nspace->var_num)
     {
         nspace->vars = (Var*)calloc(Start_var_arr_size, sizeof(Var));
-        NULL_CHECK(nsapce->vars);
+        if (!nspace->vars)
+            return -1;
 
         nspace->var_cap = Start_var_arr_size;
     }
@@ -297,7 +300,8 @@ int _var_arr_increase(Nspace* nspace FOR_LOGS(, LOG_PARAMS))
         nspace->vars = (Var*)my_recalloc(nspace->vars, (size_t)(nspace->var_num * 2), 
                                                        (size_t) nspace->var_num, 
                                                         sizeof(Var));
-        NULL_CHECK(nspace->vars);
+        if (nspace->vars)
+            return -1;
 
         nspace->var_cap *= 2;
     }
@@ -310,7 +314,7 @@ int _var_arr_increase(Nspace* nspace FOR_LOGS(, LOG_PARAMS))
 int _move_memory_place(Trans* trans FOR_LOGS(, LOG_PARAMS))
 {
     lang_log_report();
-    FILE_PTR_CHECK(asm_file);
+    TRANS_STRUCT_PTR_CHECK(trans)
 
     int offset = 0;
 
@@ -319,17 +323,17 @@ int _move_memory_place(Trans* trans FOR_LOGS(, LOG_PARAMS))
     else
         offset = get_sum_var_num(trans);
 
-    fprintf(asm_file, "\n PUSH dx \n");
-    fprintf(asm_file, "\n PUSH %d \n", offset);
-    fprintf(asm_file, "\n ADD \n");
-    fprintf(asm_file, "\n POP dx \n");
+    fprintf(ASM_FILE, "\n PUSH dx \n");
+    fprintf(ASM_FILE, "\n PUSH %d \n", offset);
+    fprintf(ASM_FILE, "\n ADD \n");
+    fprintf(ASM_FILE, "\n POP dx \n");
 
     return offset;
 }
 
 //-------------------------------------------------------------------
 
-int _move_memory_place_back(int offset FOR_LOGS(, LOG_PARAMS))
+int _move_memory_place_back(int offset, FILE* asm_file FOR_LOGS(, LOG_PARAMS))
 {
     lang_log_report();
     FILE_PTR_CHECK(asm_file);
@@ -347,11 +351,11 @@ int _move_memory_place_back(int offset FOR_LOGS(, LOG_PARAMS))
 int _get_sum_var_num(Trans* trans FOR_LOGS(, LOG_PARAMS))
 {
     lang_log_report();
-    TRANS_PTR_CHECK(trans);
+    TRANS_STRUCT_PTR_CHECK(trans);
 
     int sum_var_num;
 
-    for (int counter = 0; counter < NSPASEC_NUM; counter++)
+    for (int counter = 0; counter < NSPACES_NUM; counter++)
         sum_var_num += NSPACES[counter].var_num;
 
     return sum_var_num;
@@ -385,11 +389,11 @@ int _write_asm_preparations(FILE* asm_file FOR_LOGS(, LOG_PARAMS))
     lang_log_report();
     FILE_PTR_CHECK(asm_file);
 
-    fprintf(ASM_FILE, "\n PUSH %d \n", Free_ram_pos);
-    fprintf(ASM_FILE, "\n POP  %s \n", Register);
+    fprintf(asm_file, "\n PUSH %d \n", Free_ram_pos);
+    fprintf(asm_file, "\n POP  %s \n", Register);
 
-    fprintf(ASM_FILE, "\n CALL: main\n");
-    fprintf(ASM_FILE, "\n HLT \n");
+    fprintf(asm_file, "\n CALL: main\n");
+    fprintf(asm_file, "\n HLT \n");
 
     return 0;
 }
@@ -417,7 +421,7 @@ int _trans_tree_to_asm(Tree* tree, FILE* asm_file FOR_LOGS(, LOG_PARAMS))
 
     fprintf(asm_file, "\n main: \n");
 
-    int ret = trans_entities(tree->root->L, &trans);
+    ret = trans_entities(tree->root->L, &trans);
     RETURN_CHECK(ret);
 
     ret = trans_struct_dtor(&trans);
@@ -683,7 +687,7 @@ int _trans_func_call(Node* node, Trans* trans FOR_LOGS(, LOG_PARAMS))
 
     fprintf(ASM_FILE, "\n PUSH %s \n", Return_register);
 
-    ret = move_memory_place_back(offset);
+    ret = move_memory_place_back(offset, ASM_FILE);
     RETURN_CHECK(ret);
 
     return 0;
@@ -717,7 +721,7 @@ int _trans_decl(Node* node, Trans* trans FOR_LOGS(, LOG_PARAMS))
 
     if (NODE_IS_ID(node->L))
     {
-        ret = add_var_decl(node->L->data.id_hash, 0);
+        ret = add_var_decl(trans, node->L->data.id_hash);
         RETURN_CHECK(ret);
 
         var_hash = node->L->data.id_hash;
@@ -725,7 +729,7 @@ int _trans_decl(Node* node, Trans* trans FOR_LOGS(, LOG_PARAMS))
 
     else if (NODE_IS_PERM(node->L) && NODE_IS_ID(node->L->R))
     {
-        ret = add_var_decl(node->L->R->data.id_hash, 1);
+        ret = add_var_decl(trans, node->L->R->data.id_hash);
         RETURN_CHECK(ret);
 
         var_hash = node->L->R->data.id_hash;
@@ -737,7 +741,7 @@ int _trans_decl(Node* node, Trans* trans FOR_LOGS(, LOG_PARAMS))
         return -1;
     }
 
-    int ret = trans_exp(node->R, trans);
+    ret = trans_exp(node->R, trans);
     RETURN_CHECK(ret);
 
     int ram_pos = get_var_ram_pos(trans, var_hash);

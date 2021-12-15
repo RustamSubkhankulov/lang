@@ -4,8 +4,8 @@
 
 #include "lexic.h"
 #include "../general/general.h"
-#include "../syntax/syntax_id.h"
-#include "../syntax/func_definitions.h"
+//#include "../syntax/syntax_id.h"
+//#include "../syntax/func_definitions.h"
 
 //===================================================================
 
@@ -523,9 +523,7 @@ int _tokens_dump(Tokens* tokens, FILE* out FOR_LOGS(, LOG_PARAMS))
     lang_log_report();
     TOKENS_STRUCT_PTR_CHECK(tokens);
 
-    labels_log_dump();
-    variables_log_dump();
-    func_declarations_log_dump();
+    
     
     if (!out)
     {

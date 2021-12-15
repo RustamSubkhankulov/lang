@@ -44,481 +44,10 @@
 //     return 0;
 // }
 
-//-------------------------------------------------------------------
-
-int _init_names_struct(Names* names FOR_LOGS(, LOG_PARAMS))
-{
-    lang_log_report();
-
-    if (!names)
-    {
-        error_report(INV_NAMES_STRUCT_PTR);
-        return -1;
-    }
-
-    int ret = 0;
-
-    ret = init_var_cluster(&(names->var_cluster));
-    RETURN_CHECK(ret);
-
-    ret = init_label_cluster(&(names->label_cluster));
-    RETURN_CHECK(ret);
-
-    ret = init_func_cluster(&(names->func_cluster));
-    RETURN_CHECK(ret);
-
-    return 0;
-}
-
-//-------------------------------------------------------------------
-
-int _kill_names_struct(Names* names FOR_LOGS(, LOG_PARAMS))
-{
-    lang_log_report();
-
-    if (!names)
-    {
-        error_report(INV_NAMES_STRUCT_PTR);
-        return -1;
-    }
-
-    int ret = 0;
-
-    ret = kill_var_cluster(names->var_cluster);
-    RETURN_CHECK(ret);
-
-    ret = kill_label_cluster(names->label_cluster);
-    RETURN_CHECK(ret);
-
-    ret = kill_func_cluster(names->label_cluster);
-    RETURN_CHECK(ret);
-
-    return 0;
-}
-
-//-------------------------------------------------------------------
-
-int _init_var_cluster  (Var_cluster*   var_cluster   FOR_LOGS(, LOG_PARAMS))
-{
-    lang_log_report();
-    VAR_CLASTER_PTR_CHECK(var_cluster);
-
-    var_cluster->var_spaces = (Var_space*)calloc(sizeof(Var_space), sizeof(char));
-    NULL_CHECK(var_cluster->var_spaces);
-
-    var_cluster->var_spaces_num = 1;
-    var_cluster->cur_var_space  = var_cluster->var_spaces;
-
-    cur_var_space->var_names = (Var_name*)calloc(Var_names_start_num, sizeof(Var_name));
-    NULL_CHECK(cur_var_space->var_names);
-
-    cur_var_space->var_names_cap = Var_names_start_num;
-
-    return 0;
-}
-
-//-------------------------------------------------------------------
-
-int _kill_var_cluster  (Var_cluster*   var_cluster   FOR_LOGS(, LOG_PARAMS))
-{
-    lang_log_report();
-    VAR_CLASTER_PTR_CHECK(var_cluster);
-
-    for (int counter = 0; counter < var_cluster->var_spaces_num, counter++)
-    {
-        if (var_cluster->var_spaces[counter].var_names)
-            free(var_cluster->var_spaces[counter].var_names);
-    }
-
-    if (var_cluster->var_spaces)
-        free(var_cluster->var_spaces);
-
-    var_cluster->var_spaces     = NULL;
-    var_cluster->cur_var_space  = NULL;
-    var_cluster->var_spaces_num = 0;
-
-    return 0;
-}
-
-//-------------------------------------------------------------------
-
-int _init_label_cluster(Label_cluster* label_cluster FOR_LOGS(, LOG_PARAMS))
-{
-    lang_log_report();
-    LABEL_CLASTER_PTR_CHECK(label_cluster);
-
-    label_cluster->label_names = (Label_name*)calloc(Label_names_start_num, sizeof(Label_name));
-    NULL_CHECK(label_cluster->label_names);
-
-    label_cluster->label_names_cap = Label_names_start_num;
-
-    return 0;
-}
-
-//-------------------------------------------------------------------
-
-int _kill_label_cluster(Label_cluster* label_cluster FOR_LOGS(, LOG_PARAMS))
-{
-    lang_log_report();
-    LABEL_CLASTER_PTR_CHECK(Label_cluster);
-
-    if (label_cluster->label_names)
-        free(label_cluster->label_names);
-
-    label_cluster->label_names = NULL;
-    label_cluster->label_names_cap = 0;
-    label_cluster->label_names_num = 0;
-
-    return 0;
-}
-
-//-------------------------------------------------------------------
-
-int _init_func_cluster (Func_cluster*  func_cluster  FOR_LOGS(, LOG_PARAMS))
-{
-    lang_log_report();
-    FUNC_CLASTER_PTR_CHECK(func_cluster);
-
-    func_cluster->func_names = (Func_name*)calloc(Func_names_start_num, sizeof(Func_name));
-    NULL_CHECK(func_cluster->func_names);
-
-    func_cluster->func_names_cap = Func_names_start_num;
-
-    return 0;
-}
-
-//-------------------------------------------------------------------
-
-int _kill_func_cluster (Func_cluster*  func_cluster  FOR_LOGS(, LOG_PARAMS))
-{
-    if (func_cluster->func_names)
-        free(func_cluster->func_names);
-
-    func_cluster->func_names = NULL;
-    func_cluster->func_names_cap = 0;
-    func_cluster->func_names_num = 0;
-
-    return 0;
-}
-
-//-------------------------------------------------------------------
-
-int _add_func_defn   (int64_t hash, Func_cluster*  func_cluster  FOR_LOGS(, LOG_PARAMS))
-[
-    lang_log_report();
-    FUNC_CLASTER_PTR_CHECK(func_cluster);
-
-    if (func_cluster->func_names_num = func_cluster->func_names_cap - 1)
-    {
-        int ret = func_defn_arr_increase(func_cluster);
-        RETURN_CHECK(ret);
-    }
-
-    func_cluster->func_names[func_cluster->func_names_num++] = hash;
-    return 0;
-]
-
-//-------------------------------------------------------------------
-
-int _func_is_defined (int64_t hash, Func_cluster*  func_cluster  FOR_LOGS(, LOG_PARAMS))
-{
-    lang_log_report();
-    FUNC_CLASTER_PTR_CHECK(func_cluster);
-
-    for (int counter = 0; counter < func_cluster->func_names_num; counter++)
-    {
-        if (hash == func_cluster->func_names[counter])
-            return 1;
-    }
-
-    return 0;
-}
-
-
-//-------------------------------------------------------------------
-
-int _func_defn_arr_increase(Func_cluster* func_cluster FOR_LOGS(, LOG_PARAMS))
-{
-    lang_log_report();
-    FUNC_CLASTER_PTR_CHECK(func_cluster);
-
-    func_cluster->func_names = (Func_name*)my_recalloc(func_cluster->func_names, 
-                                              (size_t)(func_cluster->func_names_cap * 2), 
-                                               size_t (func_cluster->func_names_cap), 
-                                               sizeof(Func_name));
-    NULL_CHECK(func_cluster->func_names);
-
-    func_cluster->func_names_cap *= 2;
-
-    return 0;
-}
-
-//-------------------------------------------------------------------
-
-int _add_var_declare(int64_t hash, int is_perm, Var_cluster*   var_cluster   FOR_LOGS(, LOG_PARAMS))
-{
-    lang_log_report();
-    VAR_CLASTER_PTR_CHECK(var_cluster);
-
-    if (var_cluster->cur_var_space->var_names_num 
-    ==  var_cluster->cur_var_space->var_names_cap - 1)
-    {
-        int ret = var_decl_arr_increase(var_cluster);
-        RETURN_CHECK(ret);
-    }
-
-    var_names     = var_cluster->cur_var_space->var_names;
-    var_names_num = var_cluster->cur_var_space->var_names_num;
-
-    var_names[var_names_num].hash    = hash;
-    var_names[var_names_num].is_perm = is_perm;
-
-    var_cluster->cur_var_space->var_names_num++;
-
-    return 0;
-}
-
-//-------------------------------------------------------------------
-
-int _var_is_declared (int64_t hash, Var_cluster*   var_cluster   FOR_LOGS(, LOG_PARAMS))
-{
-    lang_log_report();
-    VAR_CLASTER_PTR_CHECK(var_cluster);
-
-    for (int counter = 0; counter < var_cluster->var_spaces_num; counter++)
-
-        for (int ct = 0; ct < var_cluster->var_spaces[counter].var_names_num)
-        {
-            if (hash = var_cluster->var_spaces[counter].vars[ct].hash)
-                return 1;
-        }
-
-    return 0;
-}
-
-//------------------------------------------------------------------
-
-int _var_is_permanent(int64_t hash, Var_cluster* var_cluster FOR_LOGS(, LOG_PARAMS))
-{
-    lang_log_report();
-    VAR_CLASTER_PTR_CHECK(var_cluster);
-
-    for (int counter = 0; counter < var_cluster->var_spaces_num; counter++)
-
-        for (int ct = 0; ct < var_cluster->var_spaces[counter].var_names_num)
-        {
-            if (hash = var_cluster->var_spaces[counter].vars[ct].hash)
-                return var_cluster->var_spaces[counter].vars[ct].is_perm;
-        }
-
-    error_report(VAR_UNDECLARED);
-    return -1;
-}
-
-//-------------------------------------------------------------------
-
-int _var_decl_arr_increase(Var_cluster* var_cluster FOR_LOGS(, LOG_PARAMS))
-{
-    lang_log_report();
-    VAR_CLASTER_PTR_CHECK(var_cluster);
-
-    int var_names_cap   = var_cluster->cur_var_space->var_names_cap;
-    Var_name* var_names = var_cluster->cur_var_space->var_names;
-
-    var_cluster->cur_var_space->var_names = (Var_name*)my_recalloc(var_names, 
-                                                          (size_t)(var_names_cap * 2), 
-                                                          (size_t) var_names_cap, 
-                                                           sizeof (Var_name));
-    NULL_CHECK(var_cluster->cur_var_space->var_names);
-
-    var_cluster->cur_var_space->var_names_cap *= 2;
-
-    return 0;
-}
-
-//-------------------------------------------------------------------
-
-int _add_var_space(Var_cluster* var_cluster FOR_LOGS(, LOG_PARAMS))
-{
-    lang_log_report();
-    VAR_CLASTER_PTR_CHECK(var_cluster);
-
-    int var_spaces_num = var_cluster->var_spaces_num;
-
-    if (!var_spaces_num)
-    {
-        var_cluster->var_spaces = (Var_space*)calloc(sizeof(Var_space), sizeof(char));
-        NULL_CHECK(var_cluster->var_spaces);
-        
-        var_cluster->var_spaces_num = 1;
-        var_cluster->cur_var_space = var_spaces;
-    }
-
-    else
-    {
-        var_cluster->var_spaces = (Var_space*)my_recalloc(var_cluster->var_spaces, 
-                                                              (size_t)(var_spaces_num + 1), 
-                                                              (size_t) var_spaces_num, 
-                                                               sizeof (Var_space));
-        NULL_CHECK(var_cluster->var_spaces);
-
-        var_cluster->var_spaces_num++;
-        var_cluster->cur_var_space = &(var_cluster->var_spaces[var_cluster->var_spaces_num - 1]);
-    }
-    var_cluster->cur_var_space->var_names = (Var_name*)calloc(Var_names_start_num, sizeof(Var_name));
-    NULL_CHECK(var_cluster->cur_var_space->var_names);
-
-    var_cluster->cur_var_space->var_names_cap = Var_names_start_num;
-
-    return 0;
-}
-
-//-------------------------------------------------------------------
-
-int _rm_var_space(Var_cluster* var_cluster FOR_LOGS(, LOG_PARAMS))
-{
-    lang_log_report();
-    VAR_CLASTER_PTR_CHECK(var_cluster);
-
-    if (var_cluster->cur_var_space->var_names)
-        free(var_cluster->cur_var_space->var_names);
-
-    int var_spaces_num = var_cluster->var_spaces_num;
-
-    if (var_spaces_num == 1)
-    {
-        free(var_cluster->var_spaces);
-
-        var_cluster->var_spaces_num = 0;
-        var_cluster->var_spaces     = NULL;
-        var_cluster->cur_var_space  = NULL;
-    }
-
-    else
-    {
-        var_cluster->var_spaces = (Var_sapce*)my_recalloc(var_cluster->var_spaces, 
-                                                              (size_t)(var_spaces_num - 1), 
-                                                              (size_t) var_spaces_num, 
-                                                               sizeof (Var_space));
-        NULL_CHECK(var_cluster->var_spaces);
-
-        var_cluster->var_spaces_num--;
-        var_cluster->cur_var_space = &(var_cluster->var_spaces[var_cluster->var_spaces_num - 1]);
-    }
-
-    return 0;
-}
-
-//-------------------------------------------------------------------
-
-int _add_label_defn  (int64_t hash, Label_cluster* label_cluster FOR_LOGS(, LOG_PARAMS))
-{
-    lang_log_report();
-    LABEL_CLASTER_PTR_CHECK(label_cluster);
-
-    if (label_cluster->label_names_num == Label_cluster->label_names_cap - 1)
-    {
-        int ret = label_defn_arr_increase(label_cluster);
-        RETURN_CHECK(ret);
-    }
-
-    label_cluster->label_names[label_cluster->label_names_num++] = hash;
-    return 0;
-}
-
-//-------------------------------------------------------------------
-
-int _label_is_defined(int64_t hash, Label_cluster* label_cluster FOR_LOGS(, LOG_PARAMS))
-{
-    lang_log_report();
-    LABEL_CLASTER_PTR_CHECK(label_cluster);
-
-    for (int counter = 0; counter < label_cluster->label_names_num; counter++)
-    {
-        if (hash = label_cluster->label_names[counter])
-            return 1;
-    }
-
-    return 0;
-}
-
-//-------------------------------------------------------------------
-
-int _label_defn_arr_increase(Label_cluster* label_cluster FOR_LOGS(, LOG_PARAMS))
-{
-    lang_log_report();
-    LABEL_CLASTER_PTR_CHECK(label_cluster);
-
-    label_cluster->label_names = (Label_name*)my_recalloc(label_cluster->label_names, 
-                                                 (size_t)(label_cluster->label_names_cap * 2), 
-                                                 (size_t) label_cluster->label_names_cap, 
-                                                  sizeof(Label_name));
-    NULL_CHECK(label_cluster->label_names);
-
-    label_cluster->label_names_cap *= 2;
-
-    return 0;
-}
-
-//--------------------------------------------------------------------
-
-int _names_struct_dump(Names* names FOR_LOGS(, LOG_PARAMS))
-{
-    lang_log_report();
-    NAMES_PTR_CHECK(names);
-
-    fprintf(logs_file, "<pre><div class=\"outline\"  "
-                                   "style = \"background-color:lightgrey;\" "
-                                   "style = \"text-align: center;\">\n");
-
-    fprintf(logs_file, "\n\n <b> Names structure dump </b> \n");
-
-    fprintf(logs_file, "Address: <%p>\n", names);
-
-    Var_cluster* var_cluster = names->var_cluster;
-    fprintf(logs_file, "\n <b> Var cluster </b> <%p> \n", names->var_cluster);
-    fprintf(logs_file, "Var_spaces: <%p> Current var_space: <%p> Var spaces number: %d\n", var_cluster->var_spaces, 
-                                                                                           var_cluster->cur_var_space, 
-                                                                                           var_cluster->var_spaces_num);
-
-    for (int counter = 0; counter < var_cluster->var_spaces_num; counter++)
-    {
-        fprintf(logs_file, "\n Var space [%d] <%p> : Number of names: %d Capacity: %d\n", counter, var_cluster->var_spaces + counter, 
-                                                                                                   var_cluster->var_spaces[counter].var_names_num, 
-                                                                                                   var_cluster->var_spaces[counter].var_names_cap);
-        for (int ct = 0; ct < var_cluster->var_spaces[counter].var_names_num; ct++)
-            fprintf(logs_file, "\n [%d] Name hash %ld Ram position: %d \n", ct, var_cluster->var_spaces[counter].var_names[ct].hash, 
-                                                                                var_cluster->var_spaces[counter].var_names[ct].ram_pos);
-    }
-
-    Label_cluster* label_cluster = names->label_cluster;
-
-    fprintf(logs_file, "\n <b> Labels cluster: </b> <%p> \n". label_cluster);
-    fprintf(logs_file, " Number of labels: %d Labels array capacity: %d \n", label_cluster->label_names_num, 
-                                                                             label_cluster->label_names_cap);
-
-    for (int counter = 0; counter < label_cluster->label_names_num; counter++)
-    {
-        fprintf(logs_file, "\n [%d] Label name hash: %ld \n", counter, label_cluster->label_names[counter]);
-    }
-
-    Func_cluster* func_cluster = names->func_cluster;
-
-    fprintf(logs_file, "\n <b> Func cluster: </b> <%p> \n". func_cluster);
-    fprintf(logs_file, " Number of functions: %d Func array capacity: %d \n", func_cluster->func_names_num, 
-                                                                              func_cluster->func_names_cap);
-
-    for (int counter = 0; counter < func_cluster->func_names_num; counter++)
-    {
-        fprintf(logs_file, "\n [%d] Func name hash: %ld \n", counter, func_cluster->func_names[counter]);
-    }
-
-    return 0;
-}
 
 //===================================================================
 
-int _build_a_tree(Tree* tree, Tokens* tokens, Names* names FOR_LOGS(, LOG_PARAMS))
+int _build_a_tree(Tree* tree, Tokens* tokens FOR_LOGS(, LOG_PARAMS))
 {
     lang_log_report();
     TREE_PTR_CHECK(tree);
@@ -552,10 +81,15 @@ Node* _get_g(Tokens* tokens, Names* names FOR_LOGS(, LOG_PARAMS))
     NODE_INIT_KEY_NODE(node, HEAD_ND);
     node->parent = No_parent;
 
+    int check = 0;
+
     if (TOKEN_IS_DEFN(CUR_TOKEN))
     {
         node->right_son = get_definitions(tokens, names);
         CONNECT_RIGHT(node, node->right_son);
+
+        check = add_var_space(names->var_cluster);
+        RET_VALUE_CHECK(check);
     }
 
     REQUIRE_KEY_WORD(START);
@@ -573,13 +107,15 @@ Node* _get_g(Tokens* tokens, Names* names FOR_LOGS(, LOG_PARAMS))
         CONNECT_LEFT(entity, new_entity);
         entity = new_entity;
     }
+
+    check = rm_var_space(names->var_cluster);
+    RET_VALUE_CHECK(check);
     
     REQUIRE_KEY_WORD(END);
 
     if (tokens->counter != tokens->amount)
     {
-        error_report(TOKENS_AFTER_END);
-        tokens_dump(tokens, logs_file);
+        SYNT_ERROR(TOKENS_AFTER_END, tokens, names);
         return NULL;
     }
 
@@ -595,15 +131,24 @@ Node* _get_definitions(Tokens* tokens, Names* names FOR_LOGS(, LOG_PARAMS))
     Node* defn = get_defn(tokens, names);
     NULL_CHECK(defn);
 
+    int check = rm_var_space(names->var_cluster);
+    RET_VALUE_CHECK(check);
+
     Node* first_defn = defn;
 
     while (TOKEN_IS_DEFN(CUR_TOKEN))
     {
+        check = add_var_space(names->var_cluster);
+        RET_VALUE_CHECK(check);
+
         Node* next_defn = get_defn(tokens, names);
         NULL_CHECK(next_defn);
 
         CONNECT_LEFT(defn, next_defn);
         defn = next_defn;
+
+        check = rm_var_space(names->var_cluster);
+        RET_VALUE_CHECK(check);
     }
 
     return first_defn;
@@ -662,9 +207,6 @@ Node* _get_defn(Tokens* tokens, Names* names FOR_LOGS(, LOG_PARAMS))
     Node* func_defn_nd = build_func_defn_constr();
     NULL_CHECK(func_defn_nd);
 
-    int var_number = get_variables_number();
-    if (var_number == -1) return NULL;
-
     Node* func_name = get_func_id_decl(tokens, names);
     NULL_CHECK(func_name);
     CONNECT_LEFT(func_defn_nd->R->L, func_name);
@@ -676,8 +218,6 @@ Node* _get_defn(Tokens* tokens, Names* names FOR_LOGS(, LOG_PARAMS))
     Node* statement = get_compl_statement(tokens, names);
     NULL_CHECK(statement);
     CONNECT_RIGHT(func_defn_nd->R, statement);
-
-    remove_variables_declarations(var_number);
 
     return func_defn_nd;
 }
@@ -793,8 +333,7 @@ Node* _get_statement(Tokens* tokens, Names* names FOR_LOGS(, LOG_PARAMS))
 
     else
     {
-        error_report(MISSING_STATEMENT);
-        tokens_dump(tokens, logs_file);
+        SYNT_ERROR(MISSING_STATEMENT, tokens, names);
         return NULL;
     }
 
@@ -809,9 +348,6 @@ Node* _get_compl_statement(Tokens* tokens, Names* names FOR_LOGS(, LOG_PARAMS))
     SYNTAX_READ_FUNC_START(tokens);
 
     REQUIRE_KEY_WORD(FBR_OPEN);
-
-    int var_number = get_variables_number();
-    if (var_number == -1) return NULL;
 
     Node* statement = get_statement(tokens, names);
     NULL_CHECK(statement);
@@ -828,8 +364,6 @@ Node* _get_compl_statement(Tokens* tokens, Names* names FOR_LOGS(, LOG_PARAMS))
     }
 
     REQUIRE_KEY_WORD(FBR_CLOSE);
-
-    remove_variables_declarations(var_number);
 
     return first_stat;
 }
@@ -859,6 +393,9 @@ Node* _get_instruction(Tokens* tokens, Names* names FOR_LOGS(, LOG_PARAMS))
 {
     SYNTAX_READ_FUNC_START(tokens);
 
+    int ret = add_var_space(names->var_cluster);
+    RET_VALUE_CHECK(ret);
+
     Node* node = 0;
 
     if (TOKEN_IS_FBR_OPEN(CUR_TOKEN))
@@ -872,6 +409,9 @@ Node* _get_instruction(Tokens* tokens, Names* names FOR_LOGS(, LOG_PARAMS))
         node = get_statement(tokens, names);
         NULL_CHECK(node);
     }
+
+    ret = rm_var_space(names->var_cluster);
+    RET_VALUE_CHECK(ret);
 
     return node;
 }
@@ -927,22 +467,19 @@ Node* _get_ass(Tokens* tokens, Names* names FOR_LOGS(, LOG_PARAMS))
 
     if (!TOKEN_IS_ID(CUR_TOKEN))
     {
-        error_report(INV_LEFT_VALUE);
-        tokens_dump(tokens, logs_file);
+        SYNT_ERROR(INV_LEFT_VALUE, tokens, names);
         return NULL;
     }
     else
     {
-        if (!was_var_declared(CUR_TOKEN->data.id_hash))
+        if (!var_is_declared(CUR_TOKEN->data.id_hash, names->var_cluster))
         {
-            error_report(VAR_UNDECLARED);
-            tokens_dump(tokens, logs_file);
+            SYNT_ERROR(VAR_UNDECLARED, tokens, names);
             return NULL;
         }
-        else if (is_perm_var(CUR_TOKEN->data.id_hash))
+        else if (var_is_permanent(CUR_TOKEN->data.id_hash, names->var_cluster))
         {
-            error_report(ASS_TO_PERM);
-            tokens_dump(tokens, logs_file);
+            SYNT_ERROR(ASS_TO_PERM, tokens, names);
             return NULL;
         }
 
@@ -1356,15 +893,13 @@ Node* _get_var_id(Tokens* tokens, Names* names FOR_LOGS(, LOG_PARAMS))
 
     if (!TOKEN_IS_ID(CUR_TOKEN))
     {
-        error_report(MISSING_ID);
-        tokens_dump(tokens, logs_file);
+        SYNT_ERROR(MISSING_ID, tokens, names);
         return NULL;
     }
 
-    else if (!was_var_declared(CUR_TOKEN->data.id_hash))
+    else if (!var_is_declared(CUR_TOKEN->data.id_hash, names->var_cluster))
     {
-        error_report(VAR_UNDECLARED);
-        tokens_dump(tokens, logs_file);
+        SYNT_ERROR(VAR_UNDECLARED, tokens, names);
         return NULL;
     }
 
@@ -1385,15 +920,13 @@ Node* _get_func_id(Tokens* tokens, Names* names FOR_LOGS(, LOG_PARAMS))
 
     if (!TOKEN_IS_ID(CUR_TOKEN))
     {
-        error_report(MISSING_ID);
-        tokens_dump(tokens, logs_file);
+        SYNT_ERROR(MISSING_ID, tokens, names);
         return NULL;
     }
 
-    else if (!was_func_declared(CUR_TOKEN->data.id_hash))
+    else if (!func_is_defined(CUR_TOKEN->data.id_hash, names->func_cluster))
     {
-        error_report(FUNC_UNDECLARED);
-        tokens_dump(tokens, logs_file);
+        SYNT_ERROR(FUNC_UNDECLARED, tokens, names);
         return NULL;
     }
 
@@ -1440,20 +973,19 @@ Node* _get_var_id_decl(Tokens* tokens, Names* names FOR_LOGS(, LOG_PARAMS))
 
     if (!TOKEN_IS_ID(CUR_TOKEN))
     {
-        error_report(MISSING_ID);
-        tokens_dump(tokens, logs_file);
+        SYNT_ERROR(MISSING_ID, tokens, names);
         return NULL;
     }
 
-    else if (was_var_declared(CUR_TOKEN->data.id_hash))
+    else if (var_is_declared(CUR_TOKEN->data.id_hash, names->var_cluster))
     {
-        error_report(VAR_REDECLARE);
-        tokens_dump(tokens, logs_file);
+        SYNT_ERROR(VAR_REDECLARE, tokens, names);
         return NULL;
     }
 
     else 
-        add_var_decl(CUR_TOKEN->data.id_hash, is_permanent);
+        add_var_declare(CUR_TOKEN->data.id_hash, is_permanent, 
+                                          names->var_cluster);
 
     NODE_INIT_IDENTIFICATOR(node, CUR_TOKEN->data.id_hash);
     tokens->counter++;
@@ -1471,20 +1003,18 @@ Node* _get_func_id_decl(Tokens* tokens, Names* names FOR_LOGS(, LOG_PARAMS))
 
     if (!TOKEN_IS_ID(CUR_TOKEN))
     {
-        error_report(MISSING_ID);
-        tokens_dump(tokens, logs_file);
+        SYNT_ERROR(MISSING_ID, tokens, names);
         return NULL;
     }
 
-    else if (was_func_declared(CUR_TOKEN->data.id_hash))
+    else if (func_is_defined(CUR_TOKEN->data.id_hash, names->func_cluster))
     {
-        error_report(FUNC_REDECL);
-        tokens_dump(tokens, logs_file);
+        SYNT_ERROR(FUNC_REDECL, tokens, names);
         return NULL;
     }
 
     else
-        add_func_decleration(CUR_TOKEN->data.id_hash);
+        add_func_defn(CUR_TOKEN->data.id_hash, names->func_cluster);
 
     node = (Node*)node_allocate_memory();
     NULL_CHECK(node);
@@ -1503,20 +1033,18 @@ Node* _get_label_id_decl(Tokens* tokens, Names* names FOR_LOGS(, LOG_PARAMS))
 
     if (!TOKEN_IS_ID(CUR_TOKEN))
     {
-        error_report(MISSING_ID);
-        tokens_dump(tokens, logs_file);
+        SYNT_ERROR(MISSING_ID, tokens, names);
         return NULL;
     }
 
-    else if (was_label_declared(CUR_TOKEN->data.id_hash))
+    else if (label_is_defined(CUR_TOKEN->data.id_hash, names->label_cluster))
     {
-        error_report(LABEL_REDECL);
-        tokens_dump(tokens, logs_file);
+        SYNT_ERROR(LABEL_REDECL, tokens, names);
         return NULL;
     }
 
     else
-        add_label_decl(CUR_TOKEN->data.id_hash);
+        add_label_defn(CUR_TOKEN->data.id_hash, names->label_cluster);
 
     Node* node = (Node*)node_allocate_memory();
     NULL_CHECK(node);
