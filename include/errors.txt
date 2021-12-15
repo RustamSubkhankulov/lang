@@ -644,10 +644,10 @@ DEF_ERR(935, INV_NAMES_STRUCT_PTR,
 Null pointer to the Names structure)
 
 DEF_ERR(936, INV_VAR_CLASTER_PTR,
-Null pointer to the Var_claster)
+Null pointer to the Var_cluster)
 
 DEF_ERR(937, INV_FUNC_CLASTER_PTR,
-Null pointer to the Func_claster)
+Null pointer to the Func_cluster)
 
 DEF_ERR(938, INV_LABEL_CLASTER_PTR,
-Null pointer to the Label_claster)
+Null pointer to the Label_cluster)

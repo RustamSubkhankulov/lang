@@ -11,6 +11,14 @@ const int Start_var_arr_size = 5;
 
 //=========================================================
 
+struct Var
+{
+    int64_t id;
+    int pos;
+};
+
+//---------------------------------------------------------
+
 struct Nspace
 {
     int var_number;
@@ -32,14 +40,7 @@ struct Trans
     int nspaces_num;
 
     int in_func_flag;
-};
-
-//---------------------------------------------------------
-
-struct Var
-{
-    int64_t id;
-    int pos;
+    int sum_ram_pos;
 };
 
 //=========================================================
@@ -195,12 +196,6 @@ int _get_sum_var_num(Trans* trans FOR_LOGS(, LOG_PARAMS));
 #define get_sum_var_num(trans) \
        _get_smm_var_num(trans FOR_LOGS(, LOG_ARGS))
 
-#define move_memory_place(offset) \
-       _move_memory_place(offset FOR_LOGS(, LOG_ARGS))
-
-#define move_memory_place_back(trans) \
-       _move_memory_place_back(trans FOR_LOGS(, LOG_ARGS))
-
 #define trans_struct_ctor(trans, asm_file, tree) \
        _trans_struct_ctor(trans, asm_file, tree FOR_LOGS(, LOG_ARGS))
 
@@ -228,8 +223,11 @@ int _get_sum_var_num(Trans* trans FOR_LOGS(, LOG_PARAMS));
 #define get_var_ram_pos(trans, hash) \
        _get_var_ram_pos(trans, hash FOR_LOGS(, LOG_ARGS))
 
-#define move_memory_place(asm_file, offset) \
-       _move_memory_place(asm_file, offset FOR_LOGS(, LOG_ARGS))
+#define move_memory_place(trans) \
+       _move_memory_place(trans FOR_LOGS(, LOG_ARGS))
+
+#define move_memory_place_back(offset) \
+       _move_memory_place_back(offset FOR_LOGS(, LOG_ARGS))
 
 //===================================================================
 

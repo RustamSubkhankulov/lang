@@ -216,7 +216,7 @@ int _add_var_decl(Trans* trans, int64_t var_hash FOR_LOGS(, LOG_PARAMS))
     CUR_NSPACE->vars[CUR_NSPACE->var_num].ram_pos = CUR_NSPACE->ram_pos;
 
     CUR_NSPACE->ram_pos++;
-    CUR_NSPACE->var_num++;
+    CUR_NSPACE->var_num++;                 //fix !!!
 
     return 0;
 }  
