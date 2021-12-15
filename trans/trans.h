@@ -11,6 +11,17 @@ const int Start_var_arr_size = 5;
 
 //=========================================================
 
+struct Nspace
+{
+    int var_number;
+    int var_cap;
+    Var* vars;
+
+    int ram_pos;
+};
+
+//---------------------------------------------------------
+
 struct Trans
 {
     Trans* trans;
@@ -19,15 +30,8 @@ struct Trans
     Nspace* nspaces;
     Nspace* cur_nspace;
     int nspaces_num;
-};
 
-//---------------------------------------------------------
-
-struct Nspace
-{
-    int var_number;
-    int var_cap;
-    Var* vars;
+    int in_func_flag;
 };
 
 //---------------------------------------------------------
@@ -40,7 +44,7 @@ struct Var
 
 //=========================================================
 
-#define TRANS_START_CHECK(node, file) {                     \
+#define TRANS_START_CHECK(node, trans) {                    \
                                                             \
     do                                                      \
     {                                                       \
@@ -172,11 +176,30 @@ int _var_arr_increase(Nspace* nspace FOR_LOGS(, LOG_PARAMS));
 
 int _add_var_decl(Trans* trans, int64_t var_hash FOR_LOGS(, LOG_PARAMS));
 
+int _was_var_decl(Trans* trans, int64_t hash FOR_LOGS(, LOG_PARAMS));
+
+int _get_var_ram_pos(Trans* trans, int64_t hash FOR_LOGS(, LOG_PARAMS));
+
 int _trans_struct_dump(Trans* trans FOR_LOGS(, LOG_PARAMS));
 
 int _trans_struct_dtor(Trans* trans FOR_LOGS(, LOG_PARAMS));
 
+int _move_memory_place(Trans* trans FOR_LOGS(, LOG_PARAMS));
+
+int _move_memory_place_back(int offset FOR_LOGS(, LOG_PARAMS));
+
+int _get_sum_var_num(Trans* trans FOR_LOGS(, LOG_PARAMS));
+
 //===================================================================
+
+#define get_sum_var_num(trans) \
+       _get_smm_var_num(trans FOR_LOGS(, LOG_ARGS))
+
+#define move_memory_place(offset) \
+       _move_memory_place(offset FOR_LOGS(, LOG_ARGS))
+
+#define move_memory_place_back(trans) \
+       _move_memory_place_back(trans FOR_LOGS(, LOG_ARGS))
 
 #define trans_struct_ctor(trans, asm_file, tree) \
        _trans_struct_ctor(trans, asm_file, tree FOR_LOGS(, LOG_ARGS))
@@ -198,6 +221,15 @@ int _trans_struct_dtor(Trans* trans FOR_LOGS(, LOG_PARAMS));
 
 #define add_var_decl(trans, var_hash) \
        _add_var_decl(trans, var_hash FOR_LOGS(, LOG_ARGS))
+
+#define was_var_decl(trans, var_hash) \
+       _was_var_decl(trans, var_hash FOR_LOGS(, LOG_ARGS))
+
+#define get_var_ram_pos(trans, hash) \
+       _get_var_ram_pos(trans, hash FOR_LOGS(, LOG_ARGS))
+
+#define move_memory_place(asm_file, offset) \
+       _move_memory_place(asm_file, offset FOR_LOGS(, LOG_ARGS))
 
 //===================================================================
 

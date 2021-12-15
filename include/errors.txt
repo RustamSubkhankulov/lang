@@ -639,3 +639,15 @@ Assignment to the permanent value variable)
 
 DEF_ERR(934, INV_TRANS_PTR,
 Invalid pointer to tre trans main structure)
+
+DEF_ERR(935, INV_NAMES_STRUCT_PTR,
+Null pointer to the Names structure)
+
+DEF_ERR(936, INV_VAR_CLASTER_PTR,
+Null pointer to the Var_claster)
+
+DEF_ERR(937, INV_FUNC_CLASTER_PTR,
+Null pointer to the Func_claster)
+
+DEF_ERR(938, INV_LABEL_CLASTER_PTR,
+Null pointer to the Label_claster)

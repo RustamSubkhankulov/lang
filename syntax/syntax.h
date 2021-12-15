@@ -8,6 +8,14 @@
 
 //===================================================================
 
+const int Var_names_start_num   = 5;
+
+const int Label_names_start_num = 5; 
+
+const int Func_names_start_num  = 5;
+
+//===================================================================
+
 #define SYNT_ERROR(error, tokens) {                                 \
                                                                     \
     do                                                              \
@@ -17,6 +25,114 @@
                                                                     \
     } while(0);                                                     \
 }
+
+//-------------------------------------------------------------------
+
+#define NAMES_PTR_CHECK(names) {                                    \
+                                                                    \
+    do                                                              \
+    {                                                               \
+        if (!names)                                                 \
+        {                                                           \
+            error_report(INV_NAMES_STRUCT_PTR);                     \
+            return NULL;                                            \
+        }                                                           \
+                                                                    \
+    } while(0);                                                    
+}
+
+//-------------------------------------------------------------------
+
+#define VAR_CLASTER_PTR_CHECK(claster) {                            \
+                                                                    \
+    do                                                              \
+    {                                                               \
+        if(!claster)                                                \
+        {                                                           \
+            error_report(INV_VAR_CLASTER_PTR);                      \
+            return -1;                                              \
+        }                                                           \
+    } while(0);                                                     \
+}
+
+//-------------------------------------------------------------------
+
+#define LABEL_CLASTER_PTR_CHECK(claster) {                          \
+                                                                    \
+    do                                                              \
+    {                                                               \
+        if(!claster)                                                \
+        {                                                           \
+            error_report(INV_LABEL_CLASTER_PTR);                    \
+            return -1;                                              \
+        }                                                           \
+    } while(0);                                                     \
+}
+
+//-------------------------------------------------------------------
+
+#define FUNC_CLASTER_PTR_CHECK(claster) {                           \
+                                                                    \
+    do                                                              \
+    {                                                               \
+        if(!claster)                                                \
+        {                                                           \
+            error_report(INV_FUNC_CLASTER_PTR);                     \
+            return -1;                                              \
+        }                                                           \
+    } while(0);                                                     \
+}
+
+//===================================================================
+
+struct Var_name
+{
+    int64_t id_hash;
+    int is_perm;
+};
+
+struct Var_space
+{
+    Var_name* var_names;
+    int var_names_num;
+    int var_names_cap;
+};
+
+typedef Label_name int64_t;
+
+typedef Func_name int64_t;
+
+//-------------------------------------------------------------------
+
+struct Var_claster
+{
+    Var_space* var_spaces;
+    Var_space* cur_var_space;
+    int var_spaces_num;
+};
+
+struct Label_claster
+{
+    Label_name* label_names;
+    int label_names_num;
+    int label_names_cap;
+};
+
+struct Func_claster
+{
+    Func_name* func_names;
+    int func_names_num;
+    int func_names_cap;
+};
+
+//-------------------------------------------------------------------
+
+struct Names
+{
+    Var_claster   var_claster;
+    Label_claster label_claster;
+    Func_claster  func_claster;
+};
 
 //===================================================================
 
@@ -158,6 +274,54 @@
                                                                     \
     } while(0);                                                     \
 }
+
+//===================================================================
+
+int _init_names_struct (Names* names FOR_LOGS(, LOG_PARAMS));
+
+int _kill_names_struct (Names* names FOR_LOGS(, LOG_PARAMS));
+
+int _init_var_claster  (Var_claster*   var_claster   FOR_LOGS(, LOG_PARAMS));
+
+int _kill_var_claster  (Var_claster*   var_claster   FOR_LOGS(, LOG_PARAMS));
+
+int _init_label_claster(Label_claster* label_claster FOR_LOGS(, LOG_PARAMS));
+
+int _kill_label_claster(Label_claster* label_claster FOR_LOGS(, LOG_PARAMS));
+
+int _init_func_claster (Func_claster*  func_claster  FOR_LOGS(, LOG_PARAMS));
+
+int _kill_func_claster (Func_claster*  func_claster  FOR_LOGS(, LOG_PARAMS));
+
+//-------------------------------------------------------------------
+
+int _add_func_defn  (int64_t hash, Func_claster* func_claster FOR_LOGS(, LOG_PARAMS));
+
+int _func_is_defined(int64_t hash, Func_claster* func_claster FOR_LOGS(, LOG_PARAMS));
+
+int _func_defn_arr_increase       (Func_claster* func_claster FOR_LOGS(, LOG_PARAMS));
+
+//-------------------------------------------------------------------
+
+int _add_var_decl    (int64_t hash, int is_perm, Var_claster* var_claster FOR_LOGS(, LOG_PARAMS));
+
+int _var_is_declared (int64_t hash, Var_claster* var_claster FOR_LOGS(, LOG_PARAMS));
+
+int _var_is_permanent(int64_t hash, Var_claster* var_claster FOR_LOGS(, LOG_PARAMS));
+
+int _var_decl_arr_increase         (Var_cluster* var_cluster FOR_LOGS(, LOG_PARAMS));
+
+int _add_var_space                 (Var_claster* var_claster FOR_LOGS(, LOG_PARAMS));
+
+int _rm_var_space                  (Var_claster* var_claster FOR_LOGS(, LOG_PARAMS));
+
+//-------------------------------------------------------------------
+
+int _add_label_defn  (int64_t hash, Label_claster* label_claster FOR_LOGS(, LOG_PARAMS));
+
+int _label_is_defined(int64_t hash, Label_claster* label_claster FOR_LOGS(, LOG_PARAMS));
+
+int _label_defn_arr_increase       (Label_claster* label_claster FOR_LOGS(, LOG_PARAMS));
 
 //===================================================================
 
@@ -326,4 +490,69 @@ Node* _build_func_defn_constr(FOR_LOGS(LOG_PARAMS));
 
 //===================================================================
 
+#define init_names_struct(names) \
+       _init_names_struct(names FOR_LOGS(, LOGS_ARGS))
+
+#define kill_names_struct(names) \
+       _kill_names_struct(names FOR_LOGS(, LOGS_ARGS))
+
+#define init_var_claster(claster) \
+       _init_var_claster(claster FOR_LOGS(, LOG_ARGS))
+
+#define init_func_claster(claster) \
+       _init_func_claster(claster FOR_LOGS(, LOG_ARGS))
+
+#define init_label_claster(claster) \
+       _init_label_claster(claster FOR_LOGS(, LOG_ARGS))
+
+#define kill_var_claster(claster) \
+       _kill_var_claster(claster FOR_LOGS(, LOG_ARGS))
+
+#define kill_func_claster(claster) \
+       _kill_func_claster(claster FOR_LOGS(, LOG_ARGS))
+
+#define kill_label_claster(claster) \
+       _kill_label_claster(claster FOR_LOGS(, LOG_ARGS))  
+
+//------------------------------------------------------------------- 
+
+#define add_func_defn(hash, claster) \
+       _add_func_defn(hash, claster FOR_LOGS(, LOG_ARGS))
+
+#define func_is_defined(hash, claster) \
+       _func_is_defined(hash, claster FOR_LOGS(, LOGS_ARGS))
+
+#define func_defn_arr_increase(claster) \
+       _func_defn_arr_increase(claster FOR_LOGS(, LOGS_ARGS))
+
+//-------------------------------------------------------------------
+
+#define add_label_defn(hash, claster) \
+       _add_label_defn(hash, claster FOR_LOGS(, LOG_ARGS))
+
+#define label_is_defined(hash, claster) \
+       _label_is_defined(hash, claster FOR_LOGS(, LOGS_ARGS))
+
+#define label_defn_arr_increase(claster) \
+       _label_defn_arr_increase(claster FOR_LOGS(, LOGS_ARGS))
+
+//-------------------------------------------------------------------
+
+#define add_var_decl(hash, is_perm, claster) \
+       _add_var_decl(hash, is_perm, claster FOR_LOGS(, LOG_ARGS))
+
+#define var_is_declared(hash, claster) \
+       _var_is_declared(hash, claster FOR_LOGS(, LOGS_ARGS))
+
+#define var_is_permanent(hash, claster) \
+       _var_is_permanent(hash, claster FOR_LOGS(, LOGS_ARGS))
+
+#define var_decl_arr_increase(claster) \
+       _var_decl_arr_increase(claster FOR_LOGS(, LOGS_ARGS))
+
+#define add_var_space(claster) \
+       _add_var_space(claster FOR_LOGS(, LOGS_ARGS))
+
+#define rm_var_space(claster) \
+       _rm_var_space(claster FOR_LOGS(, LOGS_ARGS))
 

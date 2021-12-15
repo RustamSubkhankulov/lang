@@ -6,7 +6,7 @@
 #include "syntax.h"
 #include "../general/general.h"
 #include "func_definitions.h"
-#include "syntax_id.h"
+//#include "syntax_id.h"
 
 //===================================================================
 
@@ -43,6 +43,352 @@
 
 //     return 0;
 // }
+
+//-------------------------------------------------------------------
+
+int _init_names_struct(Names* names FOR_LOGS(, LOG_PARAMS));
+{
+    lang_log_report();
+
+    if (!names)
+    {
+        error_report(INV_NAMES_STRUCT_PTR);
+        return -1;
+    }
+
+    int ret = 0;
+
+    ret = init_var_claster(names->var_claster);
+    RETURN_CHECK(ret);
+
+    ret = init_label_claster(names->label_claster);
+    RETURN_CHECK(ret);
+
+    ret = init_func_claster(names->func_claster);
+    RETURN_CHECK(ret);
+
+    return 0;
+}
+
+//-------------------------------------------------------------------
+
+int _kill_names_struct(Names* names FOR_LOGS(, LOG_PARAMS))
+{
+    lang_log_report();
+
+    if (!names)
+    {
+        error_report(INV_NAMES_STRUCT_PTR);
+        return -1;
+    }
+
+    int ret = 0;
+
+    ret = kill_var_claster(names->var_claster);
+    RETURN_CHECK(ret);
+
+    ret = kill_label_claster(names->label_claster);
+    RETURN_CHECK(ret);
+
+    ret = kill_func_claster(names->label_claster);
+    RETURN_CHECK(ret);
+
+    return 0;
+}
+
+//-------------------------------------------------------------------
+
+int _init_var_claster  (Var_claster*   var_claster   FOR_LOGS(, LOG_PARAMS))
+{
+    lang_log_report();
+    VAR_CLASTER_PTR_CHECK(var_claster);
+
+    var_claster->var_spaces = (Var_space*)calloc(sizeof(Var_space), sizeof(char));
+    NULL_CHECK(var_claster->var_spaces);
+
+    var_claster->var_spaces_num = 1;
+    var_cluster->cur_var_space  = var_claster->var_spaces;
+
+    cur_var_space->var_names = (Var_name*)calloc(Var_names_start_num, sizeof(Var_name));
+    NULL_CHECK(cur_var_space->var_names);
+
+    cur_var_space->var_names_cap = Var_names_start_num;
+
+    return 0;
+}
+
+//-------------------------------------------------------------------
+
+int _kill_var_claster  (Var_claster*   var_claster   FOR_LOGS(, LOG_PARAMS))
+{
+    lang_log_report();
+    VAR_CLASTER_PTR_CHECK(var_claster);
+
+    for (int counter = 0; counter < var_claster->var_spaces_num, counter++)
+    {
+        if (var_claster->var_spaces[counter].var_names)
+            free(var_claster->var_spaces[counter].var_names);
+    }
+
+    if (var_claster->var_spaces)
+        free(var_claster->var_spaces);
+
+    var_claster->var_spaces     = NULL;
+    var_claster->cur_var_space  = NULL;
+    var_claster->var_spaces_num = 0;
+
+    return 0;
+}
+
+//-------------------------------------------------------------------
+
+int _init_label_claster(Label_claster* label_claster FOR_LOGS(, LOG_PARAMS))
+{
+    lang_log_report();
+    LABEL_CLASTER_PTR_CHECK(label_claster);
+
+    label_claster->label_names = (Label_name*)calloc(Label_names_start_num, sizeof(Label_name));
+    NULL_CHECK(label_claster->label_names);
+
+    label_claster->label_names_cap = Label_names_start_num;
+
+    return 0;
+}
+
+//-------------------------------------------------------------------
+
+int _kill_label_claster(Label_claster* label_claster FOR_LOGS(, LOG_PARAMS))
+{
+    lang_log_report();
+    LABEL_CLASTER_PTR_CHECK(Label_claster);
+
+    if (label_claster->label_names)
+        free(label_claster->label_names);
+
+    label_claster->label_names = NULL;
+    label_claster->label_names_cap = 0;
+    label_claster->label_names_num = 0;
+
+    return 0;
+}
+
+//-------------------------------------------------------------------
+
+int _init_func_claster (Func_claster*  func_claster  FOR_LOGS(, LOG_PARAMS))
+{
+    lang_log_report();
+    FUNC_CLASTER_PTR_CHECK(func_claster);
+
+    func_claster->func_names = (Func_name*)calloc(Func_names_start_num, sizeof(Func_name));
+    NULL_CHECK(func_claster->func_names);
+
+    func_claster->func_names_cap = Func_names_start_num;
+
+    return 0;
+}
+
+//-------------------------------------------------------------------
+
+int _kill_func_claster (Func_claster*  func_claster  FOR_LOGS(, LOG_PARAMS))
+{
+    if (func_claster->func_names)
+        free(func_claster->func_names);
+
+    func_claster->func_names = NULL;
+    func_claster->func_names_cap = 0;
+    func_claster->func_names_num = 0;
+
+    return 0;
+}
+
+//-------------------------------------------------------------------
+
+int _add_func_defn   (int64_t hash, Func_claster*  func_claster  FOR_LOGS(, LOG_PARAMS))
+[
+    lang_log_report();
+    FUNC_CLASTER_PTR_CHECK(func_claster);
+
+    if (func_claster->func_names_num = func_claster->func_names_cap - 1)
+    {
+        int ret = func_defn_arr_increase(func_claster);
+        RETURN_CHECK(ret);
+    }
+
+    func_claster->func_names[func_claster->func_names_num++] = hash;
+    return 0;
+]
+
+//-------------------------------------------------------------------
+
+int _func_is_defined (int64_t hash, Func_claster*  func_claster  FOR_LOGS(, LOG_PARAMS))
+{
+    lang_log_report();
+    FUNC_CLASTER_PTR_CHECK(func_claster);
+
+    for (int counter = 0; counter < func_claster->func_names_num; counter++)
+    {
+        if (hash == func_claster->func_names[counter])
+            return 1;
+    }
+
+    return 0;
+}
+
+
+//-------------------------------------------------------------------
+
+int _func_defn_arr_increase(Func_claster* func_claster FOR_LOGS(, LOG_PARAMS))
+{
+    lang_log_report();
+    FUNC_CLASTER_PTR_CHECK(func_claster);
+
+    func_claster->func_names = (Func_name*)my_recalloc(func_claster->func_names, 
+                                              (size_t)(func_claster->func_names_cap * 2), 
+                                               size_t (func_claster->func_names_cap), 
+                                               sizeof(Func_name));
+    NULL_CHECK(func_claster->func_names);
+
+    func_claster->func_names_cap *= 2;
+
+    return 0;
+}
+
+//-------------------------------------------------------------------
+
+int _add_var_decl    (int64_t hash, int is_perm, Var_claster*   var_claster   FOR_LOGS(, LOG_PARAMS))
+{
+    lang_log_report();
+    VAR_CLASTER_PTR_CHECK(var_claster);
+
+    if (var_claster->cur_var_space->var_names_num 
+    ==  var_claster->cur_var_space->var_names_cap - 1)
+    {
+        int ret = var_decl_arr_increase(var_claster);
+        RETURN_CHECK(ret);
+    }
+
+    var_names     = var_claster->cur_var_space->var_names;
+    var_names_num = var_claster->cur_var_space->var_names_num;
+
+    var_names[var_names_num].hash    = hash;
+    var_names[var_names_num].is_perm = is_perm;
+
+    var_claster->cur_var_space->var_names_num++;
+
+    return 0;
+}
+
+//-------------------------------------------------------------------
+
+int _var_is_declared (int64_t hash, Var_claster*   var_claster   FOR_LOGS(, LOG_PARAMS))
+{
+    lang_log_report();
+    VAR_CLASTER_PTR_CHECK(var_claster);
+
+    for (int counter = 0; counter < var_claster->var_spaces_num; counter++)
+
+        for (int ct = 0; ct < var_claster->var_spaces[counter].var_names_num)
+        {
+            if (hash = var_claster->var_spaces[counter].vars[ct].hash)
+                return 1;
+        }
+
+    return 0;
+}
+
+//------------------------------------------------------------------
+
+int _var_is_permanent(int64_t hash, Var_claster* var_claster FOR_LOGS(, LOG_PARAMS))
+{
+    lang_log_report();
+    VAR_CLASTER_PTR_CHECK(var_claster);
+
+    for (int counter = 0; counter < var_claster->var_spaces_num; counter++)
+
+        for (int ct = 0; ct < var_claster->var_spaces[counter].var_names_num)
+        {
+            if (hash = var_claster->var_spaces[counter].vars[ct].hash)
+                return var_claster->var_spaces[counter].vars[ct].is_perm;
+        }
+
+    error_report(VAR_UNDECLARED);
+    return -1;
+}
+
+//-------------------------------------------------------------------
+
+int _var_decl_arr_increase(Var_cluster* var_cluster FOR_LOGS(, LOG_PARAMS))
+{
+    lang_log_report();
+    VAR_CLASTER_PTR_CHECK(var_claster);
+}
+
+//-------------------------------------------------------------------
+
+int _add_var_space(Var_claster* var_claster FOR_LOGS(, LOG_PARAMS))
+{
+    lang_log_report();
+    VAR_CLASTER_PTR_CHECK(var_claster);
+}
+
+//-------------------------------------------------------------------
+
+int _rm_var_space(Var_claster* var_claster FOR_LOGS(, LOG_PARAMS))
+{
+    lang_log_report();
+    VAR_CLASTER_PTR_CHECK(var_claster);
+}
+
+//-------------------------------------------------------------------
+
+int _add_label_defn  (int64_t hash, Label_claster* label_claster FOR_LOGS(, LOG_PARAMS))
+{
+    lang_log_report();
+    LABEL_CLASTER_PTR_CHECK(label_claster);
+
+    if (label_claster->label_names_num == Label_claster->label_names_cap - 1)
+    {
+        int ret = label_defn_arr_increase(label_claster);
+        RETURN_CHECK(ret);
+    }
+
+    label_claster->label_names[label_claster->label_names_num++] = hash;
+    return 0;
+}
+
+//-------------------------------------------------------------------
+
+int _label_is_defined(int64_t hash, Label_claster* label_claster FOR_LOGS(, LOG_PARAMS))
+{
+    lang_log_report();
+    LABEL_CLASTER_PTR_CHECK(label_claster);
+
+    for (int counter = 0; counter < label_claster->label_names_num; counter++)
+    {
+        if (hash = label_claster->label_names[counter])
+            return 1;
+    }
+
+    return 0;
+}
+
+//-------------------------------------------------------------------
+
+int _label_defn_arr_increase(Label_claster* label_claster FOR_LOGS(, LOG_PARAMS))
+{
+    lang_log_report();
+    LABEL_CLASTER_PTR_CHECK(label_claster);
+
+    label_claster->label_names = (Label_name*)my_recalloc(label_claster->label_names, 
+                                                 (size_t)(label_claster->label_names_cap * 2), 
+                                                 (size_t) label_claster->label_names_cap, 
+                                                  sizeof(Label_name));
+    NULL_CHECK(label_claster->label_names);
+
+    label_claster->label_names_cap *= 2;
+
+    return 0;
+}
 
 //===================================================================
 
