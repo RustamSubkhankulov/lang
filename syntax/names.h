@@ -191,6 +191,8 @@ int _add_var_space                 (Var_cluster* var_cluster FOR_LOGS(, LOG_PARA
 
 int _rm_var_space                  (Var_cluster* var_cluster FOR_LOGS(, LOG_PARAMS));
 
+int _clear_var_spaces              (Var_cluster* var_cluster FOR_LOGS(, LOG_PARAMS));
+
 //-------------------------------------------------------------------
 
 int _add_label_defn  (int64_t hash, Label_cluster* label_cluster FOR_LOGS(, LOG_PARAMS));
@@ -273,5 +275,8 @@ int _label_defn_arr_increase       (Label_cluster* label_cluster FOR_LOGS(, LOG_
 
 #define rm_var_space(cluster) \
        _rm_var_space(cluster FOR_LOGS(, LOG_ARGS))
+
+#define clear_var_spaces(cluster) \
+       _clear_var_spaces(cluster FOR_LOGS(, LOG_ARGS))
 
 //===================================================================

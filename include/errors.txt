@@ -651,3 +651,6 @@ Null pointer to the Func_cluster)
 
 DEF_ERR(938, INV_LABEL_CLASTER_PTR,
 Null pointer to the Label_cluster)
+
+DEF_ERR(939, EMPTY_NAME_SPACE,
+Empty namespaces array in Trans structure)

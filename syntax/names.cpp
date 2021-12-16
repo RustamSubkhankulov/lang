@@ -67,6 +67,30 @@ int _kill_names_struct(Names* names FOR_LOGS(, LOG_PARAMS))
     ret = kill_func_cluster(names->func_cluster);
     RETURN_CHECK(ret);
 
+    if (names->var_cluster)
+        free(names->var_cluster);
+    else
+    {
+        error_report(INV_VAR_CLASTER_PTR);
+        return -1;
+    }
+
+    if (names->label_cluster)
+        free(names->label_cluster);
+    else
+    {
+        error_report(INV_LABEL_CLASTER_PTR);
+        return -1;
+    }
+
+    if (names->func_cluster)
+        free(names->func_cluster);
+    else
+    {
+        error_report(INV_FUNC_CLASTER_PTR);
+        return -1;
+    }
+    
     return 0;
 }
 
@@ -86,6 +110,7 @@ int _init_var_cluster  (Var_cluster*   var_cluster   FOR_LOGS(, LOG_PARAMS))
 
     var_cluster->cur_var_space->var_names = (Var_name*)calloc(Var_names_start_num, sizeof(Var_name));
     if (!var_cluster->cur_var_space->var_names)
+        return -1;
 
     var_cluster->cur_var_space->var_names_cap = Var_names_start_num;
 
@@ -357,6 +382,27 @@ int _add_var_space(Var_cluster* var_cluster FOR_LOGS(, LOG_PARAMS))
 
 //-------------------------------------------------------------------
 
+int _clear_var_spaces(Var_cluster* var_cluster FOR_LOGS(, LOG_PARAMS))
+{
+    lang_log_report();
+    VAR_CLASTER_PTR_CHECK(var_cluster);
+
+    for (int counter = 0; counter < var_cluster->var_spaces_num; counter++)
+    {
+        if (var_cluster->var_spaces[counter].var_names)
+            free(var_cluster->var_spaces[counter].var_names);
+    }
+
+    free(var_cluster->var_spaces);
+    var_cluster->var_spaces    = NULL;
+    var_cluster->cur_var_space = NULL;
+    var_cluster->var_spaces_num = 0;
+
+    return 0;    
+}
+
+//-------------------------------------------------------------------
+
 int _rm_var_space(Var_cluster* var_cluster FOR_LOGS(, LOG_PARAMS))
 {
     lang_log_report();
@@ -471,7 +517,8 @@ int _names_struct_dump(Names* names FOR_LOGS(, LOG_PARAMS))
                                                                                                    var_cluster->var_spaces[counter].var_names_num, 
                                                                                                    var_cluster->var_spaces[counter].var_names_cap);
         for (int ct = 0; ct < var_cluster->var_spaces[counter].var_names_num; ct++)
-            fprintf(logs_file, "\n [%d] Name hash %ld \n", ct, var_cluster->var_spaces[counter].var_names[ct].id_hash);
+            fprintf(logs_file, "\n [%d] Name hash %ld Is permanent %d \n", ct, var_cluster->var_spaces[counter].var_names[ct].id_hash, 
+                                                                               var_cluster->var_spaces[counter].var_names[ct].is_perm);
     }
 
     Label_cluster* label_cluster = names->label_cluster;
@@ -495,6 +542,8 @@ int _names_struct_dump(Names* names FOR_LOGS(, LOG_PARAMS))
     {
         fprintf(logs_file, "\n [%d] Func name hash: %ld \n", counter, func_cluster->func_names[counter]);
     }
+
+    fprintf(logs_file, "\n </div></pre> \n");
 
     return 0;
 }

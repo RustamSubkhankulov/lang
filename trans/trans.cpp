@@ -23,11 +23,11 @@
 
 //===================================================================
 
-static const char* Register = "dx";
+static const char* Ram_register = "dx";
 
 //static const char* Service_register = "fx";
 
-//static const char* Argument_register = "ax";
+static const char* Argument_register = "ax";
 
 static const char* Return_register = "ex";
 
@@ -74,6 +74,7 @@ int _trans_struct_dump(Trans* trans FOR_LOGS(, LOG_PARAMS))
 
     fprintf(logs_file, "\n Assembler FILE pointer: <%p> \n", trans->asm_file);
     fprintf(logs_file, "\n Tree structure pointer: <%p> \n", trans->tree);
+    fprintf(logs_file, "\n Ram position offset: %d \n", trans->ram_pos);
 
     fprintf(logs_file, "\n Namespaces number: %d \n",          trans->nspaces_num);
     fprintf(logs_file, "\n Namespaces array pointer: <%p> \n", trans->nspaces);
@@ -82,10 +83,11 @@ int _trans_struct_dump(Trans* trans FOR_LOGS(, LOG_PARAMS))
     for (int counter = 0; counter < trans->nspaces_num; counter++)
     {
         fprintf(logs_file, "\n");
-        fprintf(logs_file, "\n <b> Namespace </b><%p> \n", &(trans->nspaces[counter]));
-        fprintf(logs_file, "\n Variables array <%p>",        trans->nspaces[counter].vars);
-        fprintf(logs_file, "\n Vraiables array capcity: %d", trans->nspaces[counter].var_cap);
-        fprintf(logs_file, "\n Variables number: %d",        trans->nspaces[counter].var_num);
+        fprintf(logs_file, "\n <b> Namespace </b><%p> \n",     &(trans->nspaces[counter]));
+        fprintf(logs_file, "\n Variables array <%p>",            trans->nspaces[counter].vars);
+        fprintf(logs_file, "\n Vraiables array capcity: %d",     trans->nspaces[counter].var_cap);
+        fprintf(logs_file, "\n Variables number: %d",            trans->nspaces[counter].var_num);
+        fprintf(logs_file, "\n Local ram position offset: %d\n", trans->nspaces[counter].local_ram_pos);
 
         for (int ct = 0; ct < trans->nspaces[counter].var_num; ct++)
         {
@@ -121,6 +123,7 @@ int _trans_struct_dtor(Trans* trans FOR_LOGS(, LOG_PARAMS))
 
     trans->asm_file    = 0;
     trans->tree        = 0;
+    trans->ram_pos     = 0;
 
     trans->nspaces     = 0;
     trans->nspaces_num = 0;
@@ -164,6 +167,8 @@ int _rm_nspace(Trans* trans FOR_LOGS(, LOG_PARAMS))
     lang_log_report();
     TRANS_STRUCT_PTR_CHECK(trans);
 
+    int last_local_ram_pos = CUR_NSPACE->local_ram_pos;
+
     if (CUR_NSPACE->vars)
         free(CUR_NSPACE->vars);
 
@@ -189,6 +194,8 @@ int _rm_nspace(Trans* trans FOR_LOGS(, LOG_PARAMS))
     else
         CUR_NSPACE = NULL;
 
+    trans->ram_pos-=last_local_ram_pos;
+
     return 0;
 }
 
@@ -198,6 +205,12 @@ int _add_var_decl(Trans* trans, int64_t var_hash FOR_LOGS(, LOG_PARAMS))
 {
     lang_log_report();
     TRANS_STRUCT_PTR_CHECK(trans);
+
+    if (CUR_NSPACE == NULL)
+    {
+        error_report(EMPTY_NAME_SPACE);
+        return -1;
+    }
 
     if (CUR_NSPACE->var_num == CUR_NSPACE->var_cap - 1 || CUR_NSPACE->var_num == 0)
     {
@@ -215,10 +228,10 @@ int _add_var_decl(Trans* trans, int64_t var_hash FOR_LOGS(, LOG_PARAMS))
     }
 
     CUR_NSPACE->vars[CUR_NSPACE->var_num].hash    = var_hash;
-    CUR_NSPACE->vars[CUR_NSPACE->var_num].ram_pos = CUR_NSPACE->ram_pos;
+    CUR_NSPACE->vars[CUR_NSPACE->var_num].ram_pos = trans->ram_pos++;
 
-    CUR_NSPACE->ram_pos++;
     CUR_NSPACE->var_num++;                 //fix !!!
+    CUR_NSPACE->local_ram_pos++;
 
     return 0;
 }  
@@ -230,23 +243,13 @@ int _was_var_decl(Trans* trans, int64_t hash FOR_LOGS(, LOG_PARAMS))
     lang_log_report();
     TRANS_STRUCT_PTR_CHECK(trans)
 
-    if (trans->in_func_flag)
-    {
-        for (int ct = 0; ct < CUR_NSPACE->var_num; ct++)
+    for (int counter = 0; counter < NSPACES_NUM; counter++)
 
-            if (hash == CUR_NSPACE->vars[ct].hash)
+        for (int ct = 0; ct < NSPACES[counter].var_num; ct++)
+
+            if (hash == NSPACES[counter].vars[ct].hash)
                 return 1;
-    }
 
-    else
-    {
-        for (int counter = 0; counter < NSPACES_NUM; counter++)
-
-            for (int ct = 0; ct < NSPACES[counter].var_num; ct++)
-
-                if (hash == NSPACES[counter].vars[ct].hash)
-                    return 1;
-    }
 
     return 0;
 }
@@ -258,23 +261,13 @@ int _get_var_ram_pos(Trans* trans, int64_t hash FOR_LOGS(, LOG_PARAMS))
     lang_log_report();
     TRANS_STRUCT_PTR_CHECK(trans)
 
-    if (trans->in_func_flag)
-    {
-        for (int ct = 0; ct < CUR_NSPACE->var_num; ct++)
+    for (int counter = 0; counter < NSPACES_NUM; counter++)
 
-            if (hash == CUR_NSPACE->vars[ct].hash)
-                return CUR_NSPACE->vars[ct].ram_pos;
-    }
+        for (int ct = 0; ct < NSPACES[counter].var_num; ct++)
 
-    else
-    {
-        for (int counter = 0; counter < NSPACES_NUM; counter++)
-
-            for (int ct = 0; ct < NSPACES[counter].var_num; ct++)
-
-                if (hash == NSPACES[counter].vars[ct].hash)
-                    return NSPACES[counter].vars[ct].ram_pos;
-    }
+            if (hash == NSPACES[counter].vars[ct].hash)
+                return NSPACES[counter].vars[ct].ram_pos;
+  
 
     error_report(VAR_UNDECLARED);
     return -1;
@@ -314,21 +307,20 @@ int _var_arr_increase(Nspace* nspace FOR_LOGS(, LOG_PARAMS))
 int _move_memory_place(Trans* trans FOR_LOGS(, LOG_PARAMS))
 {
     lang_log_report();
-    TRANS_STRUCT_PTR_CHECK(trans)
+    TRANS_STRUCT_PTR_CHECK(trans);
 
-    int offset = 0;
+    fprintf(ASM_FILE, "\n\n ;; \n\n");
 
-    if (trans->in_func_flag)
-        offset = trans->cur_nspace->var_num;
-    else
-        offset = get_sum_var_num(trans);
+    fprintf(ASM_FILE, "\n\n ; Moving dx %d positions forward \n\n", trans->ram_pos);
 
     fprintf(ASM_FILE, "\n PUSH dx \n");
-    fprintf(ASM_FILE, "\n PUSH %d \n", offset);
+    fprintf(ASM_FILE, "\n PUSH %d \n", trans->ram_pos);
     fprintf(ASM_FILE, "\n ADD \n");
     fprintf(ASM_FILE, "\n POP dx \n");
 
-    return offset;
+    fprintf(ASM_FILE, "\n\n ;; \n\n");
+
+    return trans->ram_pos;
 }
 
 //-------------------------------------------------------------------
@@ -338,27 +330,30 @@ int _move_memory_place_back(int offset, FILE* asm_file FOR_LOGS(, LOG_PARAMS))
     lang_log_report();
     FILE_PTR_CHECK(asm_file);
 
+    fprintf(asm_file, "\n\n ;; \n\n");
+
+    fprintf(asm_file, "\n\n ; Moving dx %d positions back \n", offset);
+
     fprintf(asm_file, "\n PUSH dx \n");
     fprintf(asm_file, "\n PUSH %d \n", offset);
     fprintf(asm_file, "\n SUB \n");
     fprintf(asm_file, "\n POP dx \n");
+
+    fprintf(asm_file, "\n\n ;; \n\n");
 
     return 0;
 }
 
 //-------------------------------------------------------------------
 
-int _get_sum_var_num(Trans* trans FOR_LOGS(, LOG_PARAMS))
+int _reset_ram_pos(Trans* trans FOR_LOGS(, LOG_PARAMS))
 {
     lang_log_report();
     TRANS_STRUCT_PTR_CHECK(trans);
 
-    int sum_var_num;
+    trans->ram_pos = 0;
 
-    for (int counter = 0; counter < NSPACES_NUM; counter++)
-        sum_var_num += NSPACES[counter].var_num;
-
-    return sum_var_num;
+    return 0;
 }
 
 //===================================================================
@@ -389,11 +384,17 @@ int _write_asm_preparations(FILE* asm_file FOR_LOGS(, LOG_PARAMS))
     lang_log_report();
     FILE_PTR_CHECK(asm_file);
 
+    fprintf(asm_file, "\n ; Pushing start of the free ram to the dx register \n");
+
     fprintf(asm_file, "\n PUSH %d \n", Free_ram_pos);
-    fprintf(asm_file, "\n POP  %s \n", Register);
+    fprintf(asm_file, "\n POP  %s \n", Ram_register);
+
+    fprintf(asm_file, "\n\n ;; \n\n");
 
     fprintf(asm_file, "\n CALL: main\n");
     fprintf(asm_file, "\n HLT \n");
+
+    fprintf(asm_file, "\n\n ;; \n\n");
 
     return 0;
 }
@@ -415,13 +416,27 @@ int _trans_tree_to_asm(Tree* tree, FILE* asm_file FOR_LOGS(, LOG_PARAMS))
 
     if (tree->root->R)
     {
+        ret = add_nspace(&trans);
+        RETURN_CHECK(ret);
+
         ret = trans_definitions(tree->root->R, &trans);
         RETURN_CHECK(ret);
+
+        ret = rm_nspace(&trans);
+        RETURN_CHECK(ret);
+
+        reset_ram_pos(&trans);
     }
 
     fprintf(asm_file, "\n main: \n");
 
+    ret = add_nspace(&trans);
+    RETURN_CHECK(ret);
+
     ret = trans_entities(tree->root->L, &trans);
+    RETURN_CHECK(ret);
+
+    ret = rm_nspace(&trans);
     RETURN_CHECK(ret);
 
     ret = trans_struct_dtor(&trans);
@@ -499,27 +514,34 @@ int _trans_func_defn(Node* node, Trans* trans FOR_LOGS(, LOG_PARAMS))
         return -1;
     }
 
+    fprintf(ASM_FILE, "\n\n ; Function definition \n");
+
     fprintf(ASM_FILE, "\n %ld: \n", func_nd->L->data.id_hash);
 
     int64_t var_hash = func_nd->R->R->data.id_hash;
     ret = add_var_decl(trans, var_hash);
     RETURN_CHECK(ret);
 
-    // int ram_pos = get_var_ram_pos(trans, var_hash);
-    // RETURN_CHECK(ram_pos);
+    //
+    printf("\n\n var hash in func def %ld \n\n", var_hash);
+    //
 
-    // fprintf(ASM_FILE, "\n PUSH %s \n", Argument_register);
-    // fprintf(ASM_FILE, "\n POP [%s + %d] \n", Register, ram_pos);
+    int ram_pos = get_var_ram_pos(trans, var_hash);
 
-    trans->in_func_flag = 1;
+    RETURN_CHECK(ram_pos);
+
+    fprintf(ASM_FILE, "\n PUSH %s \n", Argument_register);
+    fprintf(ASM_FILE, "\n POP [%s + %d] \n", Ram_register, ram_pos);
 
     ret = trans_compl_stat(stat_nd, trans);
     RETURN_CHECK(ret);
 
-    trans->in_func_flag = 0;
-
     ret = rm_nspace(trans);
     RETURN_CHECK(ret);
+
+    fprintf(ASM_FILE, "\n RET \n");
+
+    fprintf(ASM_FILE, "\n\n ;; \n\n");
 
     return 0;
 }
@@ -620,6 +642,8 @@ int _trans_label_decl(Node* node, Trans* trans FOR_LOGS(, LOG_PARAMS))
 {
     TRANS_START_CHECK(node, trans);
 
+    fprintf(ASM_FILE, "\n\n ; Label declaration \n");
+
     if (!NODE_IS_ID(node->R))
     {
         error_report(INV_TREE);
@@ -627,6 +651,8 @@ int _trans_label_decl(Node* node, Trans* trans FOR_LOGS(, LOG_PARAMS))
     }
 
     fprintf(ASM_FILE, "\n %ld: \n", node->R->data.id_hash);
+
+    fprintf(ASM_FILE, "\n\n ;; \n\n");
 
     return 0;
 }
@@ -639,6 +665,8 @@ int _trans_cond(Node* node, Trans* trans FOR_LOGS(, LOG_PARAMS))
 
     srand((unsigned int)time(NULL));
     int random = rand();
+
+    fprintf(ASM_FILE, "\n\n ; Condition \n");
 
     int ret = trans_exp(node->R, trans);
     RETURN_CHECK(ret);
@@ -656,10 +684,15 @@ int _trans_cond(Node* node, Trans* trans FOR_LOGS(, LOG_PARAMS))
 
     fprintf(ASM_FILE, "\n FALSE%d: \n", random);
 
-    ret = trans_compl_stat(false_stat, trans);
-    RETURN_CHECK(ret);
+    if (false_stat)
+    {
+        ret = trans_compl_stat(false_stat, trans);
+        RETURN_CHECK(ret);
+    }
 
     fprintf(ASM_FILE, "\n CONDEND%d: \n", random);
+    fprintf(ASM_FILE, "\n\n ;; \n\n");
+
     return 0;
 }
 
@@ -676,19 +709,23 @@ int _trans_func_call(Node* node, Trans* trans FOR_LOGS(, LOG_PARAMS))
         return -1;
     }
 
+    fprintf(ASM_FILE, "\n\n ; Function call \n");
+
     int ret = trans_exp(func_nd->R->L, trans);
     RETURN_CHECK(ret);
 
     int offset = move_memory_place(trans);
     RETURN_CHECK(offset);
 
-    // fprintf(ASM_FILE, "\n POP %s \n", Argument_register);
-    // fprintf(ASM_FILE, "\n CALL: %ld \n", func_nd->L->data.id_hash);
+    fprintf(ASM_FILE, "\n POP %s \n", Argument_register);
+    fprintf(ASM_FILE, "\n CALL: %ld \n", func_nd->L->data.id_hash);
 
     fprintf(ASM_FILE, "\n PUSH %s \n", Return_register);
 
     ret = move_memory_place_back(offset, ASM_FILE);
     RETURN_CHECK(ret);
+
+    fprintf(ASM_FILE, "\n\n ;; \n\n");
 
     return 0;
 }
@@ -699,13 +736,21 @@ int _trans_ass(Node* node, Trans* trans FOR_LOGS(, LOG_PARAMS))
 {
     TRANS_START_CHECK(node, trans);
 
+    fprintf(ASM_FILE, "\n\n ; Assignment \n");
+
     int ret = trans_exp(node->R, trans);
     RETURN_CHECK(ret);
+
+    //
+    printf("\n\n var_hash in trans_ass %ld \n\n", node->L->data.id_hash);
+    //
 
     int ram_pos = get_var_ram_pos(trans, node->L->data.id_hash);
     RETURN_CHECK(ram_pos);
 
-    fprintf(ASM_FILE, "\n POP [%s + %d] \n", Register, ram_pos);
+    fprintf(ASM_FILE, "\n POP [%s + %d] \n", Ram_register, ram_pos);
+
+    fprintf(ASM_FILE, "\n\n ;; \n\n");
 
     return 0;
 }
@@ -717,22 +762,31 @@ int _trans_decl(Node* node, Trans* trans FOR_LOGS(, LOG_PARAMS))
     TRANS_START_CHECK(node, trans);
 
     int64_t var_hash = 0;
-    int ret          = 0;
+    int     ret      = 0;
 
-    if (NODE_IS_ID(node->L))
+    if (!NODE_IS_ASS(node->R))
     {
-        ret = add_var_decl(trans, node->L->data.id_hash);
-        RETURN_CHECK(ret);
-
-        var_hash = node->L->data.id_hash;
+        error_report(INV_TREE);
+        return -1;
     }
 
-    else if (NODE_IS_PERM(node->L) && NODE_IS_ID(node->L->R))
+    else
+        node = node->R;
+
+    if (NODE_IS_PERM(node->L) && NODE_IS_ID(node->L->R))
     {
         ret = add_var_decl(trans, node->L->R->data.id_hash);
         RETURN_CHECK(ret);
 
         var_hash = node->L->R->data.id_hash;
+    }
+
+    else if (NODE_IS_ID(node->L))
+    {
+        ret = add_var_decl(trans, node->L->data.id_hash);
+        RETURN_CHECK(ret);
+
+        var_hash = node->L->data.id_hash;
     }
 
     else
@@ -741,13 +795,19 @@ int _trans_decl(Node* node, Trans* trans FOR_LOGS(, LOG_PARAMS))
         return -1;
     }
 
+    fprintf(ASM_FILE, "\n\n ; Declaration \n");
+
     ret = trans_exp(node->R, trans);
     RETURN_CHECK(ret);
+
+    //
+    printf("\n\n var_hash in decl %ld \n\n", var_hash);
 
     int ram_pos = get_var_ram_pos(trans, var_hash);
     RETURN_CHECK(ram_pos);
 
-    fprintf(ASM_FILE, "\n POP [%s + %d] \n", Register, ram_pos);
+    fprintf(ASM_FILE, "\n POP [%s + %d] \n", Ram_register, ram_pos);
+    fprintf(ASM_FILE, "\n\n ;; \n\n");
 
     return 0;
 }
@@ -760,6 +820,8 @@ int _trans_cycle(Node* node, Trans* trans FOR_LOGS(, LOG_PARAMS))
 
     srand((unsigned int)time(NULL));
     int random = rand();
+
+    fprintf(ASM_FILE, "\n\n ; Cycle \n");
 
     fprintf(ASM_FILE, "\n REPEAT%d: \n", random);
 
@@ -774,6 +836,7 @@ int _trans_cycle(Node* node, Trans* trans FOR_LOGS(, LOG_PARAMS))
     fprintf(ASM_FILE, "\n JMP: REPEAT%d \n", random);
 
     fprintf(ASM_FILE, "\n CYCLEEND%d: \n", random);
+    fprintf(ASM_FILE, "\n\n ;; \n\n");
 
     return 0;
 }
@@ -784,10 +847,13 @@ int _trans_print(Node* node, Trans* trans FOR_LOGS(, LOG_PARAMS))
 {
     TRANS_START_CHECK(node, trans);
 
+    fprintf(ASM_FILE, "\n\n ; Print function \n");
+
     int ret = trans_exp(node->R, trans);
     RETURN_CHECK(ret);
 
     fprintf(ASM_FILE, "\n OUT \n");
+    fprintf(ASM_FILE, "\n\n ;; \n\n");
 
     return 0;
 }
@@ -804,11 +870,19 @@ int _trans_scan(Node* node, Trans* trans FOR_LOGS(, LOG_PARAMS))
         return -1;
     }
 
+    //
+    printf("\n\n var_hash in trans scan %ld \n\n", node->R->data.id_hash);
+    //
+
     int ram_pos = get_var_ram_pos(trans, node->R->data.id_hash);
     RETURN_CHECK(ram_pos);
 
+    fprintf(ASM_FILE, "\n\n ; Scan function \n");
+
     fprintf(ASM_FILE, "\n IN \n");
-    fprintf(ASM_FILE, "\n POP [%s + %d] \n", Register, ram_pos);
+    fprintf(ASM_FILE, "\n POP [%s + %d] \n", Ram_register, ram_pos);
+
+    fprintf(ASM_FILE, "\n\n ;; \n\n");
 
     return 0;
 }
@@ -857,7 +931,11 @@ int _trans_label_jump(Node* node, Trans* trans FOR_LOGS(, LOG_PARAMS))
         return -1;
     }
 
+    fprintf(ASM_FILE, "\n\n ; Label jump \n");
+
     fprintf(ASM_FILE, "\n JMP: %ld\n", node->L->data.id_hash);
+
+    fprintf(ASM_FILE, "\n\n ;; \n\n");
 
     return 0;
 }
@@ -868,11 +946,15 @@ int _trans_ret(Node* node, Trans* trans FOR_LOGS(, LOG_PARAMS))
 {
     TRANS_START_CHECK(node, trans);
 
+    fprintf(ASM_FILE, "\n\n ; Return \n");
+
     int ret = trans_exp(node->R, trans);
     RETURN_CHECK(ret);
 
     fprintf(ASM_FILE, "\n POP %s \n", Return_register);
     fprintf(ASM_FILE, "\n RET \n");
+
+    fprintf(ASM_FILE, "\n\n ;; \n\n");
 
     return 0;
 }
@@ -973,12 +1055,14 @@ int _trans_variable(Node* node, Trans* trans FOR_LOGS(, LOG_PARAMS))
 {
     TRANS_START_CHECK(node, trans);
 
-    printf("\n\n hash is %ld \n\n", node->data.id_hash);
+    //
+    printf("\n\n hash int transs var is %ld \n\n", node->data.id_hash);
+    //
 
     int ram_pos = get_var_ram_pos(trans, node->data.id_hash);
     RETURN_CHECK(ram_pos);
 
-    fprintf(ASM_FILE, "\n PUSH [%s + %d] \n", Register, ram_pos);
+    fprintf(ASM_FILE, "\n PUSH [%s + %d] \n", Ram_register, ram_pos);
 
     return 0;
 }

@@ -46,8 +46,8 @@ int main(int argc, char* argv[]) {
 
     tree_draw_graph(&tree);
 
-    // ret = translation_execute(&tree, argv[3]);
-    // if (ret == -1) return -1;
+    ret = translation_execute(&tree, argv[3]);
+    if (ret == -1) return -1;
 
     ret = tree_dtor(&tree);
     if (ret == -1) return -1;

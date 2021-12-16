@@ -25,14 +25,13 @@ struct Nspace
     int var_cap;
     Var* vars;
 
-    int ram_pos;
+    int local_ram_pos;
 };
 
 //---------------------------------------------------------
 
 struct Trans
 {
-    Trans* trans;
     Tree* tree;
     FILE* asm_file;
 
@@ -40,8 +39,7 @@ struct Trans
     Nspace* cur_nspace;
     int nspaces_num;
 
-    int in_func_flag;
-    int sum_ram_pos;
+    int ram_pos;
 };
 
 //=========================================================
@@ -202,12 +200,12 @@ int _move_memory_place(Trans* trans FOR_LOGS(, LOG_PARAMS));
 
 int _move_memory_place_back(int offset, FILE* asm_file FOR_LOGS(, LOG_PARAMS));
 
-int _get_sum_var_num(Trans* trans FOR_LOGS(, LOG_PARAMS));
+int _reset_ram_pos  (Trans* trans FOR_LOGS(, LOG_PARAMS));
 
 //===================================================================
 
-#define get_sum_var_num(trans) \
-       _get_sum_var_num(trans FOR_LOGS(, LOG_ARGS))
+#define reset_ram_pos(trans) \
+       _reset_ram_pos(trans FOR_LOGS(, LOG_ARGS))
 
 #define trans_struct_ctor(trans, asm_file, tree) \
        _trans_struct_ctor(trans, asm_file, tree FOR_LOGS(, LOG_ARGS))
@@ -215,7 +213,7 @@ int _get_sum_var_num(Trans* trans FOR_LOGS(, LOG_PARAMS));
 #define trans_struct_dtor(trans) \
        _trans_struct_dtor(trans FOR_LOGS(, LOG_ARGS))
        
-#define trans_sturct_dump(trans) \
+#define trans_struct_dump(trans) \
        _trans_struct_dump(trans FOR_LOGS(, LOG_ARGS))
 
 #define add_nspace(trans) \
