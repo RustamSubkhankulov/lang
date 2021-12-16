@@ -659,7 +659,8 @@ int _trans_cond(Node* node, Trans* trans FOR_LOGS(, LOG_PARAMS))
 {
     TRANS_START_CHECK(node, trans);
 
-    srand((unsigned int)time(NULL));
+    srand((unsigned int)clock());
+    printf("\n\n srand argument %u \n\n", (unsigned int)clock());
     int random = rand();
 
     printf("\n\n random %d \n\n", random);
@@ -809,7 +810,7 @@ int _trans_cycle(Node* node, Trans* trans FOR_LOGS(, LOG_PARAMS))
 {
     TRANS_START_CHECK(node, trans);
 
-    srand((unsigned int)time(NULL));
+    srand((unsigned int)clock());
     int random = rand();
 
     fprintf(ASM_FILE, "\n\n ; Cycle \n");
@@ -820,9 +821,9 @@ int _trans_cycle(Node* node, Trans* trans FOR_LOGS(, LOG_PARAMS))
     RETURN_CHECK(ret);
 
     fprintf(ASM_FILE, "\n PUSH 0 \n");
-    fprintf(ASM_FILE, "\n JB: CYCLEEND%d \n", random);
+    fprintf(ASM_FILE, "\n JAE: CYCLEEND%d \n", random);
 
-    ret = trans_statement(node->L, trans);
+    ret = trans_compl_stat(node->L, trans);
     RETURN_CHECK(ret);
     fprintf(ASM_FILE, "\n JMP: REPEAT%d \n", random);
 
@@ -1102,25 +1103,25 @@ int _trans_bin_operand(Node* node, Trans* trans FOR_LOGS(, LOG_PARAMS))
 
         case MORE:
         {
-            fprintf(ASM_FILE, "\n MR \n");
+            fprintf(ASM_FILE, "\n LS \n");
             break;
         }
 
         case LESS:
         {
-            fprintf(ASM_FILE, "\n LS \n");
+            fprintf(ASM_FILE, "\n MR \n");
             break;
         }
 
         case MEQ:
         {
-            fprintf(ASM_FILE, "\n MRE \n");
+            fprintf(ASM_FILE, "\n LSE \n");
             break;
         }
 
         case LEQ:
         {
-            fprintf(ASM_FILE, "\n LSE \n");
+            fprintf(ASM_FILE, "\n MRE \n");
             break;
         }
 

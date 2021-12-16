@@ -53,7 +53,6 @@ struct Trans
         TRANS_STRUCT_PTR_CHECK(trans);                      \
         FILE_PTR_CHECK(trans->asm_file);                    \
         TREE_PTR_CHECK(trans->tree);                        \
-        printf("\n\n node <%p>\n\n", node);                 \
                                                             \
     } while(0);                                             \
 }
