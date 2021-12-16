@@ -522,10 +522,6 @@ int _trans_func_defn(Node* node, Trans* trans FOR_LOGS(, LOG_PARAMS))
     ret = add_var_decl(trans, var_hash);
     RETURN_CHECK(ret);
 
-    //
-    printf("\n\n var hash in func def %ld \n\n", var_hash);
-    //
-
     int ram_pos = get_var_ram_pos(trans, var_hash);
 
     RETURN_CHECK(ram_pos);
@@ -666,6 +662,8 @@ int _trans_cond(Node* node, Trans* trans FOR_LOGS(, LOG_PARAMS))
     srand((unsigned int)time(NULL));
     int random = rand();
 
+    printf("\n\n random %d \n\n", random);
+
     fprintf(ASM_FILE, "\n\n ; Condition \n");
 
     int ret = trans_exp(node->R, trans);
@@ -741,10 +739,6 @@ int _trans_ass(Node* node, Trans* trans FOR_LOGS(, LOG_PARAMS))
     int ret = trans_exp(node->R, trans);
     RETURN_CHECK(ret);
 
-    //
-    printf("\n\n var_hash in trans_ass %ld \n\n", node->L->data.id_hash);
-    //
-
     int ram_pos = get_var_ram_pos(trans, node->L->data.id_hash);
     RETURN_CHECK(ram_pos);
 
@@ -799,9 +793,6 @@ int _trans_decl(Node* node, Trans* trans FOR_LOGS(, LOG_PARAMS))
 
     ret = trans_exp(node->R, trans);
     RETURN_CHECK(ret);
-
-    //
-    printf("\n\n var_hash in decl %ld \n\n", var_hash);
 
     int ram_pos = get_var_ram_pos(trans, var_hash);
     RETURN_CHECK(ram_pos);
@@ -869,10 +860,6 @@ int _trans_scan(Node* node, Trans* trans FOR_LOGS(, LOG_PARAMS))
         error_report(INV_TREE);
         return -1;
     }
-
-    //
-    printf("\n\n var_hash in trans scan %ld \n\n", node->R->data.id_hash);
-    //
 
     int ram_pos = get_var_ram_pos(trans, node->R->data.id_hash);
     RETURN_CHECK(ram_pos);
@@ -1054,10 +1041,6 @@ int _trans_constant(Node* node, Trans* trans FOR_LOGS(, LOG_PARAMS))
 int _trans_variable(Node* node, Trans* trans FOR_LOGS(, LOG_PARAMS))
 {
     TRANS_START_CHECK(node, trans);
-
-    //
-    printf("\n\n hash int transs var is %ld \n\n", node->data.id_hash);
-    //
 
     int ram_pos = get_var_ram_pos(trans, node->data.id_hash);
     RETURN_CHECK(ram_pos);
