@@ -264,7 +264,7 @@ Node* _get_func_parameters(int* arg_num, Tokens* tokens, Names* names FOR_LOGS(,
         ADD_LEFT(param_nd);
         NODE_INIT_KEY_NODE(param_nd->L, PARAMETER_ND);
 
-        CONNECT_RIGHT(param_nd, get_var_id_decl(tokens, names))
+        CONNECT_RIGHT(param_nd->L, get_var_id_decl(tokens, names))
         param_nd = param_nd->L;
     }
 
@@ -1091,10 +1091,10 @@ Node* _get_func_call_args(Tokens* tokens, Names* names, int arg_num FOR_LOGS(, L
 
     while (TOKEN_IS_COMMA(CUR_TOKEN))
     {
+        tokens->counter++;
+
         ADD_LEFT(param_nd);
         NODE_INIT_KEY_NODE(param_nd->L, PARAMETER_ND);
-
-        ADD_RIGHT(param_nd->L);
 
         CONNECT_RIGHT(param_nd->L, get_exp(tokens, names));
         NULL_CHECK(param_nd->L->R);
@@ -1102,6 +1102,8 @@ Node* _get_func_call_args(Tokens* tokens, Names* names, int arg_num FOR_LOGS(, L
         param_nd = param_nd->L;
         arg_counter++;
     }
+
+    fprintf(logs_file, "\n<pre>\n\n\n\n arg_num %d arg_ct %d \n\n\n </pre>\n", arg_num, arg_counter);
 
     if (arg_counter != arg_num)
     {
@@ -1413,10 +1415,11 @@ Node* _get_func_id(Tokens* tokens, Names* names, int* arg_num FOR_LOGS(, LOG_PAR
     NULL_CHECK(node);
 
     NODE_INIT_IDENTIFICATOR(node, CUR_TOKEN->data.id_hash);
-    tokens->counter++;
 
     *arg_num = get_func_arg_num(CUR_TOKEN->data.id_hash, names->func_cluster);
     RET_VALUE_CHECK(*arg_num);
+
+    tokens->counter++;
 
     return node;
 }

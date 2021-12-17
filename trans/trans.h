@@ -128,74 +128,75 @@ struct Trans
 
 //=========================================================
 
-int _trans_tree_to_asm  (Tree* tree, FILE* asm_file FOR_LOGS(, LOG_PARAMS));
-
-int _trans_compl_stat   (Node* node, Trans* trans FOR_LOGS(,LOG_PARAMS));
-
-int _trans_entities     (Node* node, Trans* trans FOR_LOGS(, LOG_PARAMS));
-
-int _trans_statement    (Node* node, Trans* trans FOR_LOGS(, LOG_PARAMS));
-
-int _trans_label_decl   (Node* node, Trans* trans FOR_LOGS(, LOG_PARAMS));
-
-int _trans_cond         (Node* node, Trans* trans FOR_LOGS(, LOG_PARAMS));
-
-int _trans_ass          (Node* node, Trans* trans FOR_LOGS(, LOG_PARAMS));
-
-int _trans_ass_index    (Node* node, Trans* trans FOR_LOGS(, LOG_PARAMS));
-
-// int _trans_arr_ass      (Node* node, Trans* trans FOR_LOGS(, LOG_PARAMS));
-
-int _trans_decl         (Node* node, Trans* trans FOR_LOGS(, LOG_PARAMS));
-
-int _trans_cycle        (Node* node, Trans* trans FOR_LOGS(, LOG_PARAMS));
-
-int _trans_func_call    (Node* node, Trans* trans FOR_LOGS(, LOG_PARAMS));
-
-int _trans_std_func_call(Node* node, Trans* trans FOR_LOGS(, LOG_PARAMS));
-
-int _trans_label_jump   (Node* node, Trans* trans FOR_LOGS(, LOG_PARAMS));
-
-int _trans_ret          (Node* node, Trans* trans FOR_LOGS(, LOG_PARAMS));
-
-int _trans_exp          (Node* node, Trans* trans FOR_LOGS(, LOG_PARAMS));
-
-int _trans_unary_oper   (Node* node, Trans* trans FOR_LOGS(, LOG_PARAMS));
-
-int _trans_binary_oper  (Node* node, Trans* trans FOR_LOGS(, LOG_PARAMS));
-
-int _trans_print        (Node* node, Trans* trans FOR_LOGS(, LOG_PARAMS));
-
-int _trans_scan         (Node* node, Trans* trans FOR_LOGS(, LOG_PARAMS));
-
-int _trans_constant     (Node* node, Trans* trans FOR_LOGS(, LOG_PARAMS));
-
-int _trans_variable     (Node* node, Trans* trans FOR_LOGS(, LOG_PARAMS));
-
-int _trans_bin_operand  (Node* node, Trans* trans FOR_LOGS(, LOG_PARAMS));
-
-int _trans_unar_operand (Node* node, Trans* trans FOR_LOGS(, LOG_PARAMS));
-
-int _trans_definitions  (Node* node, Trans* trans FOR_LOGS(, LOG_PARAMS));
-
-int _trans_func_defn    (Node* node, Trans* trans FOR_LOGS(, LOG_PARAMS));
-
-int _trans_var_pop      (Node* node, Trans* trans FOR_LOGS(, LOG_PARAMS));
-
-int _trans_var_push     (Node* node, Trans* trans FOR_LOGS(, LOG_PARAMS));
-
-int _trans_pop_offset   (Node* node, Trans* trans FOR_LOGS(, LOG_PARAMS));
-
-int _trans_parameter    (Node* node, Trans* trans FOR_LOGS(, LOG_PARAMS));
-
-int _trans_func_args    (Node* node, Trans* trans FOR_LOGS(, LOG_PARAMS));
+int _node_is_cmp_sign   (Node* node FOR_LOGS(, LOG_PARAMS));
 
 int _write_asm_preparations(FILE* asm_file FOR_LOGS(, LOG_PARAMS));
 
-int _translation_execute(Tree* tree, const char* asm_filename 
-                                     FOR_LOGS(, LOG_PARAMS));
+int _trans_func_args(Node* node, Trans* trans FOR_LOGS(, LOG_PARAMS));
 
-int _node_is_cmp_sign   (Node* node FOR_LOGS(, LOG_PARAMS));
+int _trans_compl_stat     (Node* node, Trans* trans FOR_LOGS(,LOG_PARAMS));
+
+int _trans_entities       (Node* node, Trans* trans FOR_LOGS(, LOG_PARAMS));
+
+int _trans_statement      (Node* node, Trans* trans FOR_LOGS(, LOG_PARAMS));
+
+int _trans_label_decl     (Node* node, Trans* trans FOR_LOGS(, LOG_PARAMS));
+
+int _trans_cond           (Node* node, Trans* trans FOR_LOGS(, LOG_PARAMS));
+
+int _trans_ass            (Node* node, Trans* trans FOR_LOGS(, LOG_PARAMS));
+
+int _trans_ass_index      (Node* node, Trans* trans FOR_LOGS(, LOG_PARAMS));
+
+int _trans_decl           (Node* node, Trans* trans FOR_LOGS(, LOG_PARAMS));
+
+int _trans_cycle          (Node* node, Trans* trans FOR_LOGS(, LOG_PARAMS));
+
+int _trans_func_call      (Node* node, Trans* trans FOR_LOGS(, LOG_PARAMS));
+
+int _trans_func_call_args (Node* node, Trans* trans FOR_LOGS(, LOG_PARAMS));
+
+int _trans_std_func_call  (Node* node, Trans* trans FOR_LOGS(, LOG_PARAMS));
+
+int _trans_label_jump     (Node* node, Trans* trans FOR_LOGS(, LOG_PARAMS));
+
+int _trans_ret            (Node* node, Trans* trans FOR_LOGS(, LOG_PARAMS));
+
+int _trans_exp            (Node* node, Trans* trans FOR_LOGS(, LOG_PARAMS));
+
+int _trans_unary_oper     (Node* node, Trans* trans FOR_LOGS(, LOG_PARAMS));
+
+int _trans_binary_oper    (Node* node, Trans* trans FOR_LOGS(, LOG_PARAMS));
+
+int _trans_print          (Node* node, Trans* trans FOR_LOGS(, LOG_PARAMS));
+
+int _trans_scan           (Node* node, Trans* trans FOR_LOGS(, LOG_PARAMS));
+
+int _trans_constant       (Node* node, Trans* trans FOR_LOGS(, LOG_PARAMS));
+
+int _trans_variable       (Node* node, Trans* trans FOR_LOGS(, LOG_PARAMS));
+
+int _trans_bin_operand    (Node* node, Trans* trans FOR_LOGS(, LOG_PARAMS));
+
+int _trans_unar_operand   (Node* node, Trans* trans FOR_LOGS(, LOG_PARAMS));
+
+int _trans_definitions    (Node* node, Trans* trans FOR_LOGS(, LOG_PARAMS));
+
+int _trans_func_defn      (Node* node, Trans* trans FOR_LOGS(, LOG_PARAMS));
+
+int _trans_var_pop        (Node* node, Trans* trans FOR_LOGS(, LOG_PARAMS));
+
+int _trans_var_push       (Node* node, Trans* trans FOR_LOGS(, LOG_PARAMS));
+
+int _trans_pop_offset     (Node* node, Trans* trans FOR_LOGS(, LOG_PARAMS));
+
+int _trans_parameter      (Node* node, Trans* trans FOR_LOGS(, LOG_PARAMS));
+
+int _trans_func_parameters(Node* node, Trans* trans FOR_LOGS(, LOG_PARAMS));
+
+int _trans_tree_to_asm    (Tree* tree, FILE* asm_file FOR_LOGS(, LOG_PARAMS));
+
+int _translation_execute(Tree* tree, const char* asm_filename FOR_LOGS(, LOG_PARAMS));
 
 //===================================================================
 
@@ -315,8 +316,8 @@ int _trans_arr_values (Node* node, Trans* trans FOR_LOGS(, LOG_PARAMS));
 #define trans_parameter(node, trans) \
        _trans_parameter(node, trans FOR_LOGS(, LOG_ARGS))
 
-#define trans_func_args(node, trans) \
-       _trans_func_args(node, trans FOR_LOGS(, LOG_ARGS))
+#define trans_func_parameters(node, trans) \
+       _trans_func_parameters(node, trans FOR_LOGS(, LOG_ARGS))
 
 #define trans_scan(node, trans) \
        _trans_scan(node, trans FOR_LOGS(, LOG_ARGS))
@@ -362,6 +363,9 @@ int _trans_arr_values (Node* node, Trans* trans FOR_LOGS(, LOG_PARAMS));
 
 #define trans_func_call(node, trans) \
        _trans_func_call(node, trans FOR_LOGS(, LOG_ARGS))
+
+#define trans_func_call_args(node, tras) \
+       _trans_func_call_args(node, trans FOR_LOGS(, LOG_ARGS))
 
 #define trans_label_jump(node, trans) \
        _trans_label_jump(node, trans FOR_LOGS(, LOG_ARGS))
