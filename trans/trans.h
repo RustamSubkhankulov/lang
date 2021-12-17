@@ -110,7 +110,9 @@ struct Trans
 
 #define NODE_IS_INDEX(node    )  (node->data_type == KEY_NODE && node->data.key_node_code == INDEX_ND    )
 
-#define NODE_IS_SIZE(node     )  (node->data+type == KEY_NODE && node->data.key_node_code == SIZE_ND     )
+#define NODE_IS_SIZE(node     )  (node->data_type == KEY_NODE && node->data.key_node_code == SIZE_ND     )
+
+#define NODE_IS_PARAM(node    )  (node->data_type == KEY_NODE && node->data.key_node_code == PARAMETER_ND)
 
 #define NODE_IS_CONSTANT(node )  (node->data_type == CONSTANT     )
 
@@ -139,6 +141,8 @@ int _trans_label_decl   (Node* node, Trans* trans FOR_LOGS(, LOG_PARAMS));
 int _trans_cond         (Node* node, Trans* trans FOR_LOGS(, LOG_PARAMS));
 
 int _trans_ass          (Node* node, Trans* trans FOR_LOGS(, LOG_PARAMS));
+
+int _trans_ass_index    (Node* node, Trans* trans FOR_LOGS(, LOG_PARAMS));
 
 // int _trans_arr_ass      (Node* node, Trans* trans FOR_LOGS(, LOG_PARAMS));
 
@@ -176,6 +180,16 @@ int _trans_definitions  (Node* node, Trans* trans FOR_LOGS(, LOG_PARAMS));
 
 int _trans_func_defn    (Node* node, Trans* trans FOR_LOGS(, LOG_PARAMS));
 
+int _trans_var_pop      (Node* node, Trans* trans FOR_LOGS(, LOG_PARAMS));
+
+int _trans_var_push     (Node* node, Trans* trans FOR_LOGS(, LOG_PARAMS));
+
+int _trans_pop_offset   (Node* node, Trans* trans FOR_LOGS(, LOG_PARAMS));
+
+int _trans_parameter    (Node* node, Trans* trans FOR_LOGS(, LOG_PARAMS));
+
+int _trans_func_args    (Node* node, Trans* trans FOR_LOGS(, LOG_PARAMS));
+
 int _write_asm_preparations(FILE* asm_file FOR_LOGS(, LOG_PARAMS));
 
 int _translation_execute(Tree* tree, const char* asm_filename 
@@ -200,7 +214,7 @@ int _was_var_decl     (Trans* trans, int64_t hash FOR_LOGS(, LOG_PARAMS));
 
 int _get_var_ram_pos  (Trans* trans, int64_t hash FOR_LOGS(, LOG_PARAMS));
 
-int _get_var_size     (Trans* trans, int64_t hash FOR_LOGS(, LOG_PARAMS));
+int _get_size_of_var  (Trans* trans, int64_t hash FOR_LOGS(, LOG_PARAMS));
 
 int _trans_struct_dump(Trans* trans FOR_LOGS(, LOG_PARAMS));
 
@@ -248,8 +262,8 @@ int _trans_arr_values (Node* node, Trans* trans FOR_LOGS(, LOG_PARAMS));
 #define get_var_ram_pos(trans, hash) \
        _get_var_ram_pos(trans, hash FOR_LOGS(, LOG_ARGS))
 
-#define get_var_size(trans, hash) \
-       _get_var_size(trans, hash FOR_LOGS(, LOG_ARGS))
+#define get_size_of_var(trans, hash) \
+       _get_size_of_var(trans, hash FOR_LOGS(, LOG_ARGS))
 
 #define move_memory_place(trans) \
        _move_memory_place(trans FOR_LOGS(, LOG_ARGS))
@@ -264,6 +278,15 @@ int _trans_arr_values (Node* node, Trans* trans FOR_LOGS(, LOG_PARAMS));
 
 #define trans_definitions(node, trans) \
        _trans_definitions(node, trans FOR_LOGS(, LOG_ARGS))
+
+#define trans_var_push(node, trans) \
+       _trans_var_push(node, trans FOR_LOGS(, LOG_ARGS))
+
+#define trans_var_pop(node, trans) \
+       _trans_var_pop(node, trans FOR_LOGS(, LOG_ARGS))
+
+#define trans_pop_offset(node, trans) \
+       _trans_pop_offset(node, trans FOR_LOGS(, LOG_ARGS))
 
 #define trans_func_defn(node, trans) \
        _trans_func_defn(node, trans FOR_LOGS(, LOG_ARGS))
@@ -289,6 +312,12 @@ int _trans_arr_values (Node* node, Trans* trans FOR_LOGS(, LOG_PARAMS));
 #define trans_print(node, trans) \
        _trans_print(node, trans FOR_LOGS(, LOG_ARGS))
 
+#define trans_parameter(node, trans) \
+       _trans_parameter(node, trans FOR_LOGS(, LOG_ARGS))
+
+#define trans_func_args(node, trans) \
+       _trans_func_args(node, trans FOR_LOGS(, LOG_ARGS))
+
 #define trans_scan(node, trans) \
        _trans_scan(node, trans FOR_LOGS(, LOG_ARGS))
 
@@ -312,6 +341,9 @@ int _trans_arr_values (Node* node, Trans* trans FOR_LOGS(, LOG_PARAMS));
 
 #define trans_ass(node, trans) \
        _trans_ass(node, trans FOR_LOGS(, LOG_ARGS))
+
+#define trans_ass_index(node, trans) \
+       _trans_ass_index(node, trans FOR_LOGS(, LOG_ARGS))
 
 // #define trans_arr_ass(node, trans) 
        // _trans_arr_ass(node, trans FOR_LOGS(, LOG_ARGS))
