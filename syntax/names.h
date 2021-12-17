@@ -114,7 +114,11 @@ struct Var_space
 
 typedef int64_t Label_name;
 
-typedef int64_t Func_name;
+struct Func_name
+{
+    int64_t hash;
+    int arg_num;
+};
 
 //-------------------------------------------------------------------
 
@@ -172,11 +176,13 @@ int _kill_func_cluster (Func_cluster*  func_cluster  FOR_LOGS(, LOG_PARAMS));
 
 //-------------------------------------------------------------------
 
-int _add_func_defn  (int64_t hash, Func_cluster* func_cluster FOR_LOGS(, LOG_PARAMS));
+int _add_func_defn   (int64_t hash, int arg_num, Func_cluster* func_cluster FOR_LOGS(, LOG_PARAMS));
 
-int _func_is_defined(int64_t hash, Func_cluster* func_cluster FOR_LOGS(, LOG_PARAMS));
+int _func_is_defined (int64_t hash,              Func_cluster* func_cluster FOR_LOGS(, LOG_PARAMS));
 
-int _func_defn_arr_increase       (Func_cluster* func_cluster FOR_LOGS(, LOG_PARAMS));
+int _func_defn_arr_increase                        (Func_cluster* func_cluster FOR_LOGS(, LOG_PARAMS));
+
+int _get_func_arg_num(int64_t hash,              Func_cluster* func_cluster FOR_LOGS(, LOG_PARAMS));
 
 //-------------------------------------------------------------------
 
@@ -238,14 +244,17 @@ int _label_defn_arr_increase       (Label_cluster* label_cluster FOR_LOGS(, LOG_
 
 //------------------------------------------------------------------- 
 
-#define add_func_defn(hash, cluster) \
-       _add_func_defn(hash, cluster FOR_LOGS(, LOG_ARGS))
+#define add_func_defn(hash, arg_num, cluster) \
+       _add_func_defn(hash, arg_num, cluster FOR_LOGS(, LOG_ARGS))
 
 #define func_is_defined(hash, cluster) \
        _func_is_defined(hash, cluster FOR_LOGS(, LOG_ARGS))
 
 #define func_defn_arr_increase(cluster) \
        _func_defn_arr_increase(cluster FOR_LOGS(, LOG_ARGS))
+
+#define get_func_arg_num(hash, cluster) \
+       _get_func_arg_num(hash, cluster FOR_LOGS(,LOG_ARGS))
 
 //-------------------------------------------------------------------
 

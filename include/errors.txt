@@ -669,3 +669,6 @@ Cannot use variable name with index)
 
 DEF_ERR(944, ARR_KEY_WORD_WITH_VAR,
 Using array key word with variable of size 1)
+
+DEF_ERR(945, INV_ARG_NUM,
+Invalid number of arguments in func call)

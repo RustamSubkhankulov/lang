@@ -9,7 +9,7 @@
 
 //===================================================================
 
-#define SYNT_ERROR(error, tokens, names) {                                 \
+#define SYNT_ERROR(error, tokens, names) {                          \
                                                                     \
     do                                                              \
     {                                                               \
@@ -22,7 +22,25 @@
 
 //===================================================================
 
+#define TOKEN_IS_ID(token)        (token->type == ID)
+
 #define TOKEN_IS_STD_FUNC(token)  (token->type == STD_FUNC)
+
+#define TOKEN_IS_CMP_SIGN(token)  (token->type == CMP_SIGN)
+
+#define TOKEN_IS_CALC_FUNC(token) (token->type == CALC_FUNC)
+
+#define TOKEN_IS_CONSTANT(token)  (token->type == CONST)
+
+#define TOKEN_IS_ADD(token)       (token->type == OPER && token->data.operand == ADD)
+
+#define TOKEN_IS_SUB(token)       (token->type == OPER && token->data.operand == SUB)
+
+#define TOKEN_IS_MUL(token)       (token->type == OPER && token->data.operand == MUL)
+
+#define TOKEN_IS_DIV(token)       (token->type == OPER && token->data.operand == DIV)
+
+#define TOKEN_IS_POW(token)       (token->type == OPER && token->data.operand == POW)
 
 #define TOKEN_IS_DEFN(token)      (token->type == KEY_WORD && token->data.key_word_code == DEFN)
 
@@ -46,29 +64,11 @@
 
 #define TOKEN_IS_GOTO(token)      (token->type == KEY_WORD && token->data.key_word_code == GOTO)
 
-#define TOKEN_IS_ID(token)        (token->type == ID)
-
 #define TOKEN_IS_FBR_OPEN(token)  (token->type == KEY_WORD && token->data.key_word_code == FBR_OPEN)
 
 #define TOKEN_IS_FBR_CLOSE(token) (token->type == KEY_WORD && token->data.key_word_code == FBR_CLOSE)
 
-#define TOKEN_IS_CMP_SIGN(token)  (token->type == CMP_SIGN)
-
-#define TOKEN_IS_CALC_FUNC(token) (token->type == CALC_FUNC)
-
-#define TOKEN_IS_CONSTANT(token)  (token->type == CONST)
-
 #define TOKEN_IS_PERM(token)      (token->type == KEY_WORD && token->data.key_word_code == PERM)
-
-#define TOKEN_IS_ADD(token)       (token->type == OPER && token->data.operand == ADD)
-
-#define TOKEN_IS_SUB(token)       (token->type == OPER && token->data.operand == SUB)
-
-#define TOKEN_IS_MUL(token)       (token->type == OPER && token->data.operand == MUL)
-
-#define TOKEN_IS_DIV(token)       (token->type == OPER && token->data.operand == DIV)
-
-#define TOKEN_IS_POW(token)       (token->type == OPER && token->data.operand == POW)
 
 #define TOKEN_IS_BR_OPEN(token)   (token->type == KEY_WORD && token->data.key_word_code == BR_OPEN) 
 
@@ -178,6 +178,18 @@
 
 // int node_afterbuild_check  (Node* node FOR_LOGS(, LOG_PARAMS));
 
+Node* _build_func_defn_constr(FOR_LOGS(LOG_PARAMS));
+
+Node* _make_empty_array    (int size FOR_LOGS(, LOG_PARAMS));
+
+Node* _build_size_constr   (int size FOR_LOGS(, LOG_PARAMS));
+
+Node* _build_index_constr  (int index FOR_LOGS(, LOG_PARAMS));
+
+int64_t _get_arr_name      (Tokens* tokens, Names* names FOR_LOGS(, LOG_PARAMS));
+
+int _get_arr_size          (Tokens* tokens, Names* names FOR_LOGS(, LOG_PARAMS));
+
 int _build_a_tree          (Tree* tree,   Tokens* tokens FOR_LOGS(, LOG_PARAMS));
 
 Node* _get_g               (Tokens* tokens, Names* names FOR_LOGS(, LOG_PARAMS));
@@ -208,10 +220,6 @@ Node* _get_decl            (Tokens* tokens, Names* names FOR_LOGS(, LOG_PARAMS))
 
 Node* _get_arr_decl        (Tokens* tokens, Names* names FOR_LOGS(, LOG_PARAMS));
 
-int     _get_arr_size      (Tokens* tokens, Names* names FOR_LOGS(, LOG_PARAMS));
-
-int64_t _get_arr_name      (Tokens* tokens, Names* names FOR_LOGS(, LOG_PARAMS));
-
 Node* _get_arr_el_index    (Tokens* tokens, Names* names FOR_LOGS(, LOG_PARAMS));
 
 Node* _get_sin_decl        (Tokens* tokens, Names* names FOR_LOGS(, LOG_PARAMS));
@@ -219,8 +227,6 @@ Node* _get_sin_decl        (Tokens* tokens, Names* names FOR_LOGS(, LOG_PARAMS))
 Node* _get_cycle           (Tokens* tokens, Names* names FOR_LOGS(, LOG_PARAMS));
 
 Node* _get_func_call       (Tokens* tokens, Names* names FOR_LOGS(, LOG_PARAMS));
-
-Node* _get_func_parameters (Tokens* tokens, Names* names FOR_LOGS(, LOG_PARAMS));
 
 Node* _get_std_func_call   (Tokens* tokens, Names* names FOR_LOGS(, LOG_PARAMS));
 
@@ -244,27 +250,24 @@ Node* _get_calc_func       (Tokens* tokens, Names* names FOR_LOGS(, LOG_PARAMS))
 
 Node* _get_var_id          (Tokens* tokens, Names* names FOR_LOGS(, LOG_PARAMS));
 
-Node* _get_func_id         (Tokens* tokens, Names* names FOR_LOGS(, LOG_PARAMS));
-
 Node* _get_var_id_decl     (Tokens* tokens, Names* names FOR_LOGS(, LOG_PARAMS));
 
 Node* _get_func_id_decl    (Tokens* tokens, Names* names FOR_LOGS(, LOG_PARAMS));
 
 Node* _get_label_id_decl   (Tokens* tokens, Names* names FOR_LOGS(, LOG_PARAMS));
 
+Node* _build_arr_ass_constr(int64_t hash, Node* array_values FOR_LOGS(, LOG_PARAMS));
+
 Node* _get_array_values    (Tokens* tokens, Names* names, int size FOR_LOGS(, LOG_PARAMS));
-
-Node* _build_func_defn_constr(FOR_LOGS(LOG_PARAMS));
-
-Node* _make_empty_array    (int size FOR_LOGS(, LOG_PARAMS));
 
 Node* _build_arr_name      (int64_t name_hash, int size, int is_perm FOR_LOGS(, LOG_PARAMS));
 
-Node* _build_index_constr  (int index FOR_LOGS(, LOG_PARAMS));
+Node* _get_func_call_args  (Tokens* tokens, Names* names, int arg_num FOR_LOGS(, LOG_PARAMS));
 
-Node* _build_size_constr   (int size FOR_LOGS(, LOG_PARAMS));
+Node* _get_func_parameters (int* arg_num, Tokens* tokens, Names* names FOR_LOGS(, LOG_PARAMS));
 
-Node* _build_arr_ass_constr(int64_t hash, Node* array_values FOR_LOGS(, LOG_PARAMS));
+Node* _get_func_id         (Tokens* tokens, Names* names, int* name_hash FOR_LOGS(, LOG_PARAMS));
+
 
 //-------------------------------------------------------------------
 
@@ -301,9 +304,6 @@ Node* _build_arr_ass_constr(int64_t hash, Node* array_values FOR_LOGS(, LOG_PARA
 #define get_var_id(tokens, names) \
        _get_var_id(tokens, names FOR_LOGS(, LOG_ARGS))
 
-#define get_func_id(tokens, names) \
-       _get_func_id(tokens, names FOR_LOGS(, LOG_ARGS))
-
 #define get_var_id_decl(tokens, names) \
        _get_var_id_decl(tokens, names FOR_LOGS(, LOG_ARGS))
 
@@ -313,8 +313,8 @@ Node* _build_arr_ass_constr(int64_t hash, Node* array_values FOR_LOGS(, LOG_PARA
 #define get_label_id_decl(tokens, names) \
        _get_label_id_decl(tokens, names FOR_LOGS(, LOG_ARGS))
 
-#define get_func_parameters(tokens, names) \
-       _get_func_parameters(tokens, names FOR_LOGS(, LOG_ARGS))
+#define get_func_parameters(arg_num, tokens, names) \
+       _get_func_parameters(arg_num, tokens, names FOR_LOGS(, LOG_ARGS))
 
 #define build_a_tree(tree, tokens) \
        _build_a_tree(tree, tokens FOR_LOGS(, LOG_ARGS))
@@ -385,6 +385,9 @@ Node* _build_arr_ass_constr(int64_t hash, Node* array_values FOR_LOGS(, LOG_PARA
 #define get_func_call(tokens, names) \
        _get_func_call(tokens, names FOR_LOGS(, LOG_ARGS))
 
+#define get_func_call_args(tokens, names, arg_num) \
+       _get_func_call_args(tokens, names, arg_num FOR_LOGS(, LOG_ARGS))
+
 #define get_std_func_call(tokens, names) \
        _get_std_func_call(tokens, names FOR_LOGS(, LOG_ARGS))
 
@@ -403,8 +406,8 @@ Node* _build_arr_ass_constr(int64_t hash, Node* array_values FOR_LOGS(, LOG_PARA
 #define get_p(tokens, names) \
        _get_p(tokens, names FOR_LOGS(, LOG_ARGS))
 
-#define get_func_id(tokens, names) \
-       _get_func_id(tokens, names FOR_LOGS(, LOG_ARGS))
+#define get_func_id(tokens, names, name_hash) \
+       _get_func_id(tokens, names, name_hash FOR_LOGS(, LOG_ARGS))
 
 #define get_var_id(tokens, names) \
        _get_var_id(tokens, names FOR_LOGS(, LOG_ARGS))

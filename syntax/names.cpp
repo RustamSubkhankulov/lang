@@ -205,7 +205,7 @@ int _kill_func_cluster (Func_cluster*  func_cluster  FOR_LOGS(, LOG_PARAMS))
 
 //-------------------------------------------------------------------
 
-int _add_func_defn   (int64_t hash, Func_cluster*  func_cluster  FOR_LOGS(, LOG_PARAMS))
+int _add_func_defn(int64_t hash, int arg_num, Func_cluster*  func_cluster  FOR_LOGS(, LOG_PARAMS))
 {
     lang_log_report();
     FUNC_CLASTER_PTR_CHECK(func_cluster);
@@ -216,7 +216,10 @@ int _add_func_defn   (int64_t hash, Func_cluster*  func_cluster  FOR_LOGS(, LOG_
         RETURN_CHECK(ret);
     }
 
-    func_cluster->func_names[func_cluster->func_names_num++] = hash;
+    func_cluster->func_names[func_cluster->func_names_num].hash    = hash;
+    func_cluster->func_names[func_cluster->func_names_num].arg_num = arg_num; 
+    func_cluster->func_names_num++;
+
     return 0;
 }
 
@@ -229,7 +232,7 @@ int _func_is_defined (int64_t hash, Func_cluster*  func_cluster  FOR_LOGS(, LOG_
 
     for (int counter = 0; counter < func_cluster->func_names_num; counter++)
     {
-        if (hash == func_cluster->func_names[counter])
+        if (hash == func_cluster->func_names[counter].hash)
             return 1;
     }
 
@@ -254,6 +257,23 @@ int _func_defn_arr_increase(Func_cluster* func_cluster FOR_LOGS(, LOG_PARAMS))
     func_cluster->func_names_cap *= 2;
 
     return 0;
+}
+
+//-------------------------------------------------------------------
+
+int _get_func_arg_num(int64_t hash, Func_cluster* func_cluster FOR_LOGS(, LOG_PARAMS))
+{
+    lang_log_report();
+    FUNC_CLASTER_PTR_CHECK(func_cluster);
+
+    for (int counter = 0; counter < func_cluster->func_names_num; counter++)
+    {
+        if (hash == func_cluster->func_names[counter].hash)
+            return func_cluster->func_names[counter].arg_num;
+    }
+
+    error_report(FUNC_UNDECLARED);
+    return -1;
 }
 
 //-------------------------------------------------------------------
@@ -564,7 +584,8 @@ int _names_struct_dump(Names* names FOR_LOGS(, LOG_PARAMS))
 
     for (int counter = 0; counter < func_cluster->func_names_num; counter++)
     {
-        fprintf(logs_file, "\n [%d] Func name hash: %ld \n", counter, func_cluster->func_names[counter]);
+        fprintf(logs_file, "\n [%d] Func name hash: %ld Arguments number: %d\n", counter, func_cluster->func_names[counter].hash,
+                                                                                          func_cluster->func_names[counter].arg_num);
     }
 
     fprintf(logs_file, "\n </div></pre> \n");

@@ -210,9 +210,6 @@ Node* _build_func_defn_constr(FOR_LOGS(LOG_PARAMS))
     ADD_RIGHT(func_defn_node);
     NODE_INIT_KEY_NODE(func_defn_node->R, DEFN_ND);
 
-    ADD_LEFT(func_defn_node->R);
-    NODE_INIT_KEY_NODE(func_defn_node->R->L, FUNC_ND);
-
     return func_defn_node;
 ;}
 
@@ -227,13 +224,13 @@ Node* _get_defn(Tokens* tokens, Names* names FOR_LOGS(, LOG_PARAMS))
     Node* func_defn_nd = build_func_defn_constr();
     NULL_CHECK(func_defn_nd);
 
-    Node* func_name = get_func_id_decl(tokens, names);
-    NULL_CHECK(func_name);
-    CONNECT_LEFT(func_defn_nd->R->L, func_name);
+    Node* func_nd = get_func_id_decl(tokens, names);
+    NULL_CHECK(func_nd);
+    CONNECT_LEFT(func_defn_nd->R, func_nd);
 
-    Node* param_node = get_func_parameters(tokens, names);
-    NULL_CHECK(param_node);
-    CONNECT_RIGHT(func_defn_nd->R->L, param_node);
+    // Node* param_node = get_func_parameters(tokens, names);
+    // NULL_CHECK(param_node);
+    // CONNECT_RIGHT(func_defn_nd->R->L, param_node);
 
     Node* statement = get_compl_statement(tokens, names);
     NULL_CHECK(statement);
@@ -244,22 +241,37 @@ Node* _get_defn(Tokens* tokens, Names* names FOR_LOGS(, LOG_PARAMS))
 
 //-------------------------------------------------------------------
 
-Node* _get_func_parameters(Tokens* tokens, Names* names FOR_LOGS(, LOG_PARAMS))
+Node* _get_func_parameters(int* arg_num, Tokens* tokens, Names* names FOR_LOGS(, LOG_PARAMS))
 {
     SYNTAX_READ_FUNC_START(tokens, names);
 
     REQUIRE_KEY_WORD(BR_OPEN);
 
-    Node* parameter_name = get_var_id_decl(tokens, names);
+    Node* param_nd = (Node*)node_allocate_memory();
+    NODE_INIT_KEY_NODE(param_nd, PARAMETER_ND);
 
-    Node* param_node = (Node*)node_allocate_memory();
-    NODE_INIT_KEY_NODE(param_node, PARAMETER_ND);
+    CONNECT_RIGHT(param_nd, get_var_id_decl(tokens, names));
 
-    CONNECT_RIGHT(param_node, parameter_name);
+    Node* returning = param_nd;
+
+    int arg_counter = 1;
+
+    while (TOKEN_IS_COMMA(CUR_TOKEN))
+    {
+        tokens->counter++;
+        arg_counter++;
+
+        ADD_LEFT(param_nd);
+        NODE_INIT_KEY_NODE(param_nd->L, PARAMETER_ND);
+
+        CONNECT_RIGHT(param_nd, get_var_id_decl(tokens, names))
+        param_nd = param_nd->L;
+    }
 
     REQUIRE_KEY_WORD(BR_CLOSE);
+    *arg_num = arg_counter;
 
-    return param_node;
+    return returning;
 }
 
 //-------------------------------------------------------------------
@@ -1046,22 +1058,58 @@ Node* _get_func_call(Tokens* tokens, Names* names FOR_LOGS(, LOG_PARAMS))
 
     NODE_INIT_KEY_NODE(node, FUNC_ND);
 
-    Node* func_name = get_func_id(tokens, names);
+    int arg_num = 0;
+
+    Node* func_name = get_func_id(tokens, names, &arg_num);
     NULL_CHECK(func_name);
     CONNECT_LEFT(node, func_name);
 
     REQUIRE_KEY_WORD(BR_OPEN);
 
-    ADD_RIGHT(node);
-    NODE_INIT_KEY_NODE(NR, PARAMETER_ND);
-
-    Node* exp = get_exp(tokens, names);
-    NULL_CHECK(exp);
-    CONNECT_LEFT(NR, exp);
+    CONNECT_RIGHT(node, get_func_call_args(tokens, names, arg_num));
+    NULL_CHECK(NR);
 
     REQUIRE_KEY_WORD(BR_CLOSE);
 
     return call;
+}
+
+//-------------------------------------------------------------------
+
+Node* _get_func_call_args(Tokens* tokens, Names* names, int arg_num FOR_LOGS(, LOG_PARAMS))
+{
+    SYNTAX_READ_FUNC_START(tokens, names);
+
+    Node* param_nd = (Node*)node_allocate_memory();
+    NODE_INIT_KEY_NODE(param_nd, PARAMETER_ND);
+
+    CONNECT_RIGHT(param_nd, get_exp(tokens, names));
+    NULL_CHECK(param_nd->R);
+
+    Node* returning = param_nd;
+    int arg_counter = 1;
+
+    while (TOKEN_IS_COMMA(CUR_TOKEN))
+    {
+        ADD_LEFT(param_nd);
+        NODE_INIT_KEY_NODE(param_nd->L, PARAMETER_ND);
+
+        ADD_RIGHT(param_nd->L);
+
+        CONNECT_RIGHT(param_nd->L, get_exp(tokens, names));
+        NULL_CHECK(param_nd->L->R);
+    
+        param_nd = param_nd->L;
+        arg_counter++;
+    }
+
+    if (arg_counter != arg_num)
+    {
+        SYNT_ERROR(INV_ARG_NUM, tokens, names);
+        return NULL;
+    }
+
+    return returning;
 }
 
 //-------------------------------------------------------------------
@@ -1345,7 +1393,7 @@ Node* _get_var_id(Tokens* tokens, Names* names FOR_LOGS(, LOG_PARAMS))
 
 //-------------------------------------------------------------------
 
-Node* _get_func_id(Tokens* tokens, Names* names FOR_LOGS(, LOG_PARAMS))
+Node* _get_func_id(Tokens* tokens, Names* names, int* arg_num FOR_LOGS(, LOG_PARAMS))
 {
     SYNTAX_READ_FUNC_START(tokens, names);
 
@@ -1366,6 +1414,9 @@ Node* _get_func_id(Tokens* tokens, Names* names FOR_LOGS(, LOG_PARAMS))
 
     NODE_INIT_IDENTIFICATOR(node, CUR_TOKEN->data.id_hash);
     tokens->counter++;
+
+    *arg_num = get_func_arg_num(CUR_TOKEN->data.id_hash, names->func_cluster);
+    RET_VALUE_CHECK(*arg_num);
 
     return node;
 }
@@ -1436,7 +1487,7 @@ Node* _get_func_id_decl(Tokens* tokens, Names* names FOR_LOGS(, LOG_PARAMS))
 {
     SYNTAX_READ_FUNC_START(tokens, names);
 
-    Node* node = NULL;
+    int64_t func_hash = 0;
 
     if (!TOKEN_IS_ID(CUR_TOKEN))
     {
@@ -1451,15 +1502,27 @@ Node* _get_func_id_decl(Tokens* tokens, Names* names FOR_LOGS(, LOG_PARAMS))
     }
 
     else
-        add_func_defn(CUR_TOKEN->data.id_hash, names->func_cluster);
+        func_hash = CUR_TOKEN->data.id_hash;
 
-    node = (Node*)node_allocate_memory();
-    NULL_CHECK(node);
+    Node* func_nd = (Node*)node_allocate_memory();
+    NULL_CHECK(func_nd);
+    NODE_INIT_KEY_NODE(func_nd, FUNC_ND);
 
-    NODE_INIT_IDENTIFICATOR(node, CUR_TOKEN->data.id_hash);
+    ADD_LEFT(func_nd);
+    NODE_INIT_IDENTIFICATOR(func_nd->L, func_hash);
+
     tokens->counter++;
 
-    return node;      
+    int arg_num = 0;
+
+    Node* parameters = get_func_parameters(&arg_num, tokens, names);
+    NULL_CHECK(parameters);
+    CONNECT_RIGHT(func_nd, parameters);
+
+    int ret = add_func_defn(func_hash, arg_num, names->func_cluster);
+    RET_VALUE_CHECK(ret);
+
+    return func_nd;      
 } 
 
 //-------------------------------------------------------------------
