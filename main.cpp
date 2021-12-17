@@ -46,8 +46,8 @@ int main(int argc, char* argv[]) {
 
     tree_draw_graph(&tree);
 
-    // ret = translation_execute(&tree, argv[3]);
-    // if (ret == -1) return -1;
+    ret = translation_execute(&tree, argv[3]);
+    if (ret == -1) return -1;
 
     ret = tree_dtor(&tree);
     if (ret == -1) return -1;
@@ -57,8 +57,8 @@ int main(int argc, char* argv[]) {
 
     close_log_file();
 
-    // system("./proc/asm.exe txt_files/trans.txt txt_files/trans.code asm_logs.html txt_files/trans_listing.txt ");
-    // system("./proc/cpu.exe txt_files/trans.code txt_files/in.txt txt_files/out.txt proc_logs.html");
+    system("./proc/asm.exe txt_files/trans.txt txt_files/trans.code asm_logs.html txt_files/trans_listing.txt ");
+    system("./proc/cpu.exe txt_files/trans.code txt_files/in.txt txt_files/out.txt proc_logs.html");
 
     return 0;
 }

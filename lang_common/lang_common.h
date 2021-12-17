@@ -232,7 +232,8 @@ enum Key_word_codes
     ARR       = 119,
     SBR_OPEN  = 120,
     SBR_CLOSE = 121,
-    COMMA     = 122
+    COMMA     = 122,
+    DEN       = 123,
 };
 
 //-------------------------------------------------------------------
@@ -264,7 +265,8 @@ const struct Key_word Key_words[] =
     {"expecto"          , SBR_OPEN , "square open bracket" , 0},
     {"patronum"         , SBR_CLOSE, "square close bracket", 0},
     {"nox"              , COMMA    , "comma"               , 0},
-    {"alohomora"        , ARR      , "array"               , 0}
+    {"alohomora"        , ARR      , "array"               , 0},
+    {"oscausi"          , DEN      , "denial"              , 0}
 };
 
 const int Key_words_number = sizeof(Key_words) / sizeof(Key_word);

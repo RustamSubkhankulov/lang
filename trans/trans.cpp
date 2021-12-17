@@ -735,6 +735,7 @@ int _trans_func_call_args(Node* node, Trans* trans FOR_LOGS(, LOG_PARAMS))
 
         fprintf(ASM_FILE, "\n POP [%s + %d] \n", Ram_register, 
                                                  ram_offset + ram_offset_ct);
+        ram_offset_ct++;
 
         node = NL;
     }

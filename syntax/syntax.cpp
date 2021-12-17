@@ -837,12 +837,6 @@ Node* _get_array_values(Tokens* tokens, Names* names, int size FOR_LOGS(, LOG_PA
         return make_empty_array(size);
     }
 
-    if (!TOKEN_IS_CONSTANT(CUR_TOKEN))
-    {
-        SYNT_ERROR(MISSING_CONSTANT, tokens, names);
-        return NULL;
-    }
-
     Node* elem_nd = (Node*)node_allocate_memory();
     NODE_INIT_KEY_NODE(elem_nd, ELEM_ND);
 
