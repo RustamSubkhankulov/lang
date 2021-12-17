@@ -102,6 +102,7 @@ struct Var_name
 {
     int64_t id_hash;
     int is_perm;
+    int size;
 };
 
 struct Var_space
@@ -179,11 +180,13 @@ int _func_defn_arr_increase       (Func_cluster* func_cluster FOR_LOGS(, LOG_PAR
 
 //-------------------------------------------------------------------
 
-int _add_var_declare (int64_t hash, int is_perm, Var_cluster* var_cluster FOR_LOGS(, LOG_PARAMS));
+int _add_var_declare (int64_t hash, int is_perm, int size, Var_cluster* var_cluster FOR_LOGS(, LOG_PARAMS));
 
 int _var_is_declared (int64_t hash, Var_cluster* var_cluster FOR_LOGS(, LOG_PARAMS));
 
 int _var_is_permanent(int64_t hash, Var_cluster* var_cluster FOR_LOGS(, LOG_PARAMS));
+
+int _get_var_size    (int64_t hash, Var_cluster* var_cluster FOR_LOGS(, LOG_PARAMS));
 
 int _var_decl_arr_increase         (Var_cluster* var_cluster FOR_LOGS(, LOG_PARAMS));
 
@@ -258,14 +261,17 @@ int _label_defn_arr_increase       (Label_cluster* label_cluster FOR_LOGS(, LOG_
 
 //-------------------------------------------------------------------
 
-#define add_var_declare(hash, is_perm, cluster) \
-       _add_var_declare(hash, is_perm, cluster FOR_LOGS(, LOG_ARGS))
+#define add_var_declare(hash, is_perm, size, cluster) \
+       _add_var_declare(hash, is_perm, size, cluster FOR_LOGS(, LOG_ARGS))
 
 #define var_is_declared(hash, cluster) \
        _var_is_declared(hash, cluster FOR_LOGS(, LOG_ARGS))
 
 #define var_is_permanent(hash, cluster) \
        _var_is_permanent(hash, cluster FOR_LOGS(, LOG_ARGS))
+
+#define get_var_size(hash, cluster) \
+       _get_var_size(hash, cluster FOR_LOGS(, LOG_ARGS))
 
 #define var_decl_arr_increase(cluster) \
        _var_decl_arr_increase(cluster FOR_LOGS(, LOG_ARGS))

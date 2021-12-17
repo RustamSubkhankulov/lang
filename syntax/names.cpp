@@ -258,7 +258,8 @@ int _func_defn_arr_increase(Func_cluster* func_cluster FOR_LOGS(, LOG_PARAMS))
 
 //-------------------------------------------------------------------
 
-int _add_var_declare(int64_t hash, int is_perm, Var_cluster*   var_cluster   FOR_LOGS(, LOG_PARAMS))
+int _add_var_declare(int64_t hash, int is_perm, int size, Var_cluster* var_cluster 
+                                                           FOR_LOGS(, LOG_PARAMS))
 {
     lang_log_report();
     VAR_CLASTER_PTR_CHECK(var_cluster);
@@ -273,8 +274,9 @@ int _add_var_declare(int64_t hash, int is_perm, Var_cluster*   var_cluster   FOR
     Var_name* var_names     = var_cluster->cur_var_space->var_names;
     int       var_names_num = var_cluster->cur_var_space->var_names_num;
 
-    var_names[var_names_num].id_hash    = hash;
+    var_names[var_names_num].id_hash = hash;
     var_names[var_names_num].is_perm = is_perm;
+    var_names[var_names_num].size    = size;
 
     var_cluster->cur_var_space->var_names_num++;
 
@@ -312,6 +314,27 @@ int _var_is_permanent(int64_t hash, Var_cluster* var_cluster FOR_LOGS(, LOG_PARA
         {
             if (hash == var_cluster->var_spaces[counter].var_names[ct].id_hash)
                 return  var_cluster->var_spaces[counter].var_names[ct].is_perm;
+        }
+
+    error_report(VAR_UNDECLARED);
+    return -1;
+}
+
+//-------------------------------------------------------------------
+
+int _get_var_size(int64_t hash, Var_cluster* var_cluster FOR_LOGS(, LOG_PARAMS))
+{
+    lang_log_report();
+    VAR_CLASTER_PTR_CHECK(var_cluster);
+
+    printf("\n\n hash is %ld \n\n", hash);
+
+    for (int counter = 0; counter < var_cluster->var_spaces_num; counter++)
+
+        for (int ct = 0; ct < var_cluster->var_spaces[counter].var_names_num; ct++)
+        {
+            if (hash == var_cluster->var_spaces[counter].var_names[ct].id_hash)
+                return  var_cluster->var_spaces[counter].var_names[ct].size;
         }
 
     error_report(VAR_UNDECLARED);
@@ -517,8 +540,9 @@ int _names_struct_dump(Names* names FOR_LOGS(, LOG_PARAMS))
                                                                                                    var_cluster->var_spaces[counter].var_names_num, 
                                                                                                    var_cluster->var_spaces[counter].var_names_cap);
         for (int ct = 0; ct < var_cluster->var_spaces[counter].var_names_num; ct++)
-            fprintf(logs_file, "\n [%d] Name hash %ld Is permanent %d \n", ct, var_cluster->var_spaces[counter].var_names[ct].id_hash, 
-                                                                               var_cluster->var_spaces[counter].var_names[ct].is_perm);
+            fprintf(logs_file, "\n [%d] Name hash %ld Is permanent %d Size %d \n", ct, var_cluster->var_spaces[counter].var_names[ct].id_hash, 
+                                                                                       var_cluster->var_spaces[counter].var_names[ct].is_perm,
+                                                                                       var_cluster->var_spaces[counter].var_names[ct].size);
     }
 
     Label_cluster* label_cluster = names->label_cluster;

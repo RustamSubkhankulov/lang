@@ -15,11 +15,19 @@ STATEMENT ::= "SOL" ( COND | DECL | CYCLE | ASS | STD_FUNC_CALL | FUNC_CALL | RE
 
 COND ::= "IF" "BR_OPEN" EXP "BR_CLOSE" "DO" INSTRUCTION ( "ELSE" "DO" INSTRUCTION)?
 
-ASS ::= ID "ASSGN" EXP
+ASS ::= ARR_ASS | SIN_ASS 
+
+SIN_ASS = { VAR_ID | ARR_ID "SBR_OPEN" EXP "SBR_CLOSE" } "ASSGN" EXP
+
+ARR_ASS = "ARR" ID "SBR_OPEN" "SBR_CLOSE" "ASSGN" "FBR_OPEN" { EXP+}? "FBR_CLOSE
 
 RETURN ::= "RET" EXP
 
-DECL ::= " {CONST?} DECL" (ID | ASSGN)
+DECL ::= "DECL" ARR_DECL | SIN_DECL 
+
+ARR_DECL ::= {CONST?} ID "SBR_OPEN" N "SBR_CLOSE" "ASS" "FBR_OPEN"  {EXP+}  FBR_CLOSE        const arr id; arr id; cosnt id; id;
+
+SIN_DECL ::= {CONST?} SIN_ASS          
 
 STD_FUNC_CALL ::= STD_FUNC_ID "BR_OPEN" ID_VAR "BR_CLOSE"
 
@@ -41,10 +49,11 @@ T ::= M{[*/]M}*
 
 M ::= P {^P}?
 
-P ::= {"NEG"}? '('R')' | N | CALC_FUNC | FUNC_CALL | ID
+P ::= {"NEG"}? '('R')' | N | CALC_FUNC | FUNC_CALL | {ID_VAR | ID_ARR "SBR_OPEN" EXP "SBR_CLOSE"}
 
+const struct Key_word Key_words[] = 
 {
-    {"petrificustotalus", END      , "end of code"         , 0},
+    {"obliviate"        , END      , "end of code"         , 0},
     {"aberto"           , SOL      , "start of the line"   , 0},
     {"flipendo"         , EOL      , "end of the line"     , 0},
     {"accio"            , GOTO     , "goto"                , 0},
@@ -52,21 +61,23 @@ P ::= {"NEG"}? '('R')' | N | CALC_FUNC | FUNC_CALL | ID
     {"expelliarmus"     , RET      , "return"              , 0},
     {"imperio"          , DO       , "do"                  , 0},
     {"confundo"         , WHILE    , "while"               , 0},
-    {"bombradamaxima"   , BREAK    , "break"               , 0},
-    {"sectumsempra"     , CONT     , "continue"            , 0},
+  //{"bombradamaxima"   , BREAK    , "break"               , 0},
+  //{"sectumsempra"     , CONT     , "continue"            , 0}, 
     {"reducto"          , IF       , "if"                  , 0},
     {"aguamenti"        , ELSE     , "else"                , 0},
-    {"alohomora"        , BR_OPEN  , "open bracket"        , 0},
-    {"avadacedavra"     , BR_CLOSE , "close bracket"       , 0},
+    {"avada"            , BR_OPEN  , "open bracket"        , 0},
+    {"cedavra"          , BR_CLOSE , "close bracket"       , 0},
     {"riddikulus"       , ASS      , "assignment"          , 0},
-    {"wingardiumleviosa", START    , "start of the code"   , 0},
+    {"lumos"            , START    , "start of the code"   , 0},
     {"stupefy"          , DECL     , "declaration"         , 0},
     {"colorvaria"       , DEFN     , "func definition"     , 0},
     {"cursed"           , NEG      , "negative"            , 0},
-    {"confringo"        , FBR_OPEN , "figure_bracket open" , 0},
-    {"lumos"            , FBR_CLOSE, "fugire bracket close", 0},
-    {"ascendio"         , PERM     , "permanent"           , 0}
-};
+    {"wingardium"       , FBR_OPEN , "figure_bracket open" , 0},
+    {"leviosa"          , FBR_CLOSE, "fugire bracket close", 0},
+    {"ascendio"         , PERM     , "permanent"           , 0},
+    {"confringo"        , ARR      , "array"               , 0},
+    {"expecto"          , SBR_OPEN , "square open bracket" , 0},
+    {"patronum"         , SBR_CLOSE, "square close bracket", 0}
 
 const static struct Std_function Std_functions[] =
 {

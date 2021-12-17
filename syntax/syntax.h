@@ -50,6 +50,8 @@
 
 #define TOKEN_IS_FBR_OPEN(token)  (token->type == KEY_WORD && token->data.key_word_code == FBR_OPEN)
 
+#define TOKEN_IS_FBR_CLOSE(token) (token->type == KEY_WORD && token->data.key_word_code == FBR_CLOSE)
+
 #define TOKEN_IS_CMP_SIGN(token)  (token->type == CMP_SIGN)
 
 #define TOKEN_IS_CALC_FUNC(token) (token->type == CALC_FUNC)
@@ -72,6 +74,12 @@
 
 #define TOKEN_IS_NEG(token)       (token->type == KEY_WORD && token->data.key_word_code == NEG)
 
+#define TOKEN_IS_ARR(token)       (token->type == KEY_WORD && token->data.key_word_code == ARR)
+
+#define TOKEN_IS_SBR_OPEN(token)  (token->type == KEY_WORD && token->data.key_word_code == SBR_OPEN)
+
+#define TOKEN_IS_COMMA(token)     (token->type == KEY_WORD && token->data.key_word_code == COMMA)
+
 //===================================================================
 
 #define REQUIRE_KEY_WORD(key_code) {                                \
@@ -91,12 +99,41 @@
     } while(0);                                                     \
 }
 
+//-------------------------------------------------------------------
+
+#define REQUIRE_KEY_WORD_(key_code) {                               \
+                                                                    \
+    do                                                              \
+    {                                                               \
+        if (CUR_TOKEN->type != KEY_WORD                             \
+        || CUR_TOKEN->data.key_word_code != key_code)               \
+        {                                                           \
+            error_report(REQUIRE_KEY_WORD);                         \
+            tokens_dump(tokens, logs_file);                         \
+            return -1;                                              \
+        }                                                           \
+        else                                                        \
+            tokens->counter++;                                      \
+                                                                    \
+    } while(0);                                                     \
+}
+
 //===================================================================
 
-#define SYNTAX_READ_FUNC_START(tokens) {                            \
+#define SYNTAX_READ_FUNC_START(tokens, names) {                     \
                                                                     \
     lang_log_report();                                              \
     TOKENS_PTR_CHECK(tokens);                                       \
+    NAMES_PTR_CHECK(names);                                         \
+}
+
+//-------------------------------------------------------------------
+
+#define SYNTAX_START_CHECK(tokens, names) {                         \
+                                                                    \
+    lang_log_report();                                              \
+    TOKENS_STRUCT_PTR_CHECK(tokens);                                \
+    NAMES_STRUCT_PTR_CHECK(names);                                  \
 }
 
 //===================================================================
@@ -141,7 +178,7 @@
 
 // int node_afterbuild_check  (Node* node FOR_LOGS(, LOG_PARAMS));
 
-int _build_a_tree          (Tree* tree, Tokens* tokens FOR_LOGS(, LOG_PARAMS));
+int _build_a_tree          (Tree* tree,   Tokens* tokens FOR_LOGS(, LOG_PARAMS));
 
 Node* _get_g               (Tokens* tokens, Names* names FOR_LOGS(, LOG_PARAMS));
 
@@ -163,7 +200,21 @@ Node* _get_cond            (Tokens* tokens, Names* names FOR_LOGS(, LOG_PARAMS))
 
 Node* _get_ass             (Tokens* tokens, Names* names FOR_LOGS(, LOG_PARAMS));
 
+Node* _get_sin_ass         (Tokens* tokens, Names* names FOR_LOGS(, LOG_PARAMS));
+
+Node* _get_arr_ass         (Tokens* tokens, Names* names FOR_LOGS(, LOG_PARAMS));
+
 Node* _get_decl            (Tokens* tokens, Names* names FOR_LOGS(, LOG_PARAMS));
+
+Node* _get_arr_decl        (Tokens* tokens, Names* names FOR_LOGS(, LOG_PARAMS));
+
+int     _get_arr_size      (Tokens* tokens, Names* names FOR_LOGS(, LOG_PARAMS));
+
+int64_t _get_arr_name      (Tokens* tokens, Names* names FOR_LOGS(, LOG_PARAMS));
+
+Node* _get_arr_el_index    (Tokens* tokens, Names* names FOR_LOGS(, LOG_PARAMS));
+
+Node* _get_sin_decl        (Tokens* tokens, Names* names FOR_LOGS(, LOG_PARAMS));
 
 Node* _get_cycle           (Tokens* tokens, Names* names FOR_LOGS(, LOG_PARAMS));
 
@@ -189,6 +240,8 @@ Node* _get_p               (Tokens* tokens, Names* names FOR_LOGS(, LOG_PARAMS))
 
 Node* _get_id              (Tokens* tokens, Names* names FOR_LOGS(, LOG_PARAMS));
 
+Node* _get_calc_func       (Tokens* tokens, Names* names FOR_LOGS(, LOG_PARAMS));
+
 Node* _get_var_id          (Tokens* tokens, Names* names FOR_LOGS(, LOG_PARAMS));
 
 Node* _get_func_id         (Tokens* tokens, Names* names FOR_LOGS(, LOG_PARAMS));
@@ -199,12 +252,42 @@ Node* _get_func_id_decl    (Tokens* tokens, Names* names FOR_LOGS(, LOG_PARAMS))
 
 Node* _get_label_id_decl   (Tokens* tokens, Names* names FOR_LOGS(, LOG_PARAMS));
 
+Node* _get_array_values    (Tokens* tokens, Names* names, int size FOR_LOGS(, LOG_PARAMS));
+
 Node* _build_func_defn_constr(FOR_LOGS(LOG_PARAMS));
+
+Node* _make_empty_array    (int size FOR_LOGS(, LOG_PARAMS));
+
+Node* _build_arr_name      (int64_t name_hash, int size, int is_perm FOR_LOGS(, LOG_PARAMS));
+
+Node* _build_index_constr  (int index FOR_LOGS(, LOG_PARAMS));
+
+Node* _build_size_constr   (int size FOR_LOGS(, LOG_PARAMS));
+
+Node* _build_arr_ass_constr(int64_t hash, Node* array_values FOR_LOGS(, LOG_PARAMS));
 
 //-------------------------------------------------------------------
 
 // #define node_afterbuild_check(node) 
 //        _node_afterbuild_check(node FOR_LOGS(, LOG_ARGS))
+
+#define build_arr_ass_constr(hash, node) \
+       _build_arr_ass_constr(hash, node FOR_LOGS(, LOG_ARGS))
+
+#define build_size_constr(size) \
+       _build_size_constr(size FOR_LOGS(, LOG_ARGS))
+
+#define build_index_constr(index) \
+       _build_index_constr(index FOR_LOGS(, LOG_ARGS))
+
+#define get_arr_el_index(tokens, names) \
+       _get_arr_el_index(tokens, names FOR_LOGS(, LOG_ARGS))
+
+#define build_arr_name(name_hash, size, is_perm) \
+       _build_arr_name(name_hash, size, is_perm FOR_LOGS(, LOG_ARGS))
+
+#define make_empty_array(size) \
+       _make_empty_array(size FOR_LOGS(, LOG_ARGS))
 
 #define build_func_defn_constr() \
        _build_func_defn_constr(FOR_LOGS(LOG_ARGS))
@@ -257,6 +340,9 @@ Node* _build_func_defn_constr(FOR_LOGS(LOG_PARAMS));
 #define get_statement(tokens, names) \
        _get_statement(tokens, names FOR_LOGS(, LOG_ARGS))
 
+#define get_calc_func(tokens, names) \
+       _get_calc_func(tokens, names FOR_LOGS(, LOG_ARGS))
+
 #define get_compl_statement(tokens, names) \
        _get_compl_statement(tokens, names FOR_LOGS(, LOG_ARGS))
 
@@ -269,8 +355,29 @@ Node* _build_func_defn_constr(FOR_LOGS(LOG_PARAMS));
 #define get_ass(tokens, names) \
        _get_ass(tokens, names FOR_LOGS(, LOG_ARGS))
 
+#define get_sin_ass(tokens, names) \
+       _get_sin_ass(tokens, names FOR_LOGS(, LOG_ARGS))
+
+#define get_arr_ass(tokens, names) \
+       _get_arr_ass(tokens, names FOR_LOGS(, LOG_ARGS))
+
 #define get_decl(tokens, names) \
        _get_decl(tokens, names FOR_LOGS(, LOG_ARGS))
+
+#define get_sin_decl(tokens, names) \
+       _get_sin_decl(tokens, names FOR_LOGS(, LOG_ARGS))
+
+#define get_arr_decl(tokens, names) \
+       _get_arr_decl(tokens, names FOR_LOGS(, LOG_ARGS))
+
+#define get_array_values(tokens, names, size) \
+       _get_array_values(tokens, names, size FOR_LOGS(, LOG_ARGS))
+
+#define get_arr_size(tokens, names) \
+       _get_arr_size(tokens, names FOR_LOGS(, LOG_ARGS))
+
+#define get_arr_name(tokens, names) \
+       _get_arr_name(tokens, names FOR_LOGS(, LOG_ARGS))
 
 #define get_cycle(tokens, names) \
        _get_cycle(tokens, names FOR_LOGS(, LOG_ARGS))

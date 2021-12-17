@@ -654,3 +654,18 @@ Null pointer to the Label_cluster)
 
 DEF_ERR(939, EMPTY_NAME_SPACE,
 Empty namespaces array in Trans structure)
+
+DEF_ERR(940, INV_ARR_SIZE,
+Size of array can be only constant value more than zero)
+
+DEF_ERR(941, MISSING_CONSTANT,
+Missing constant token)
+
+DEF_ERR(942, ARRAY_WITH_NO_INDEX,
+Cannot use array name without index of the element)
+
+DEF_ERR(943, VAR_WITH_INDEX,
+Cannot use variable name with index)
+
+DEF_ERR(944, ARR_KEY_WORD_WITH_VAR,
+Using array key word with variable of size 1)

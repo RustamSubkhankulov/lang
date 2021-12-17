@@ -15,6 +15,7 @@ struct Var
 {
     int64_t hash;
     int ram_pos;
+    int size;
 };
 
 //---------------------------------------------------------
@@ -85,37 +86,37 @@ struct Trans
 
 //=========================================================
 
-#define NODE_IS_STAT(node)      (node->data_type == KEY_NODE && node->data.key_node_code == STATEMENT_ND)
+#define NODE_IS_STAT(node     )  (node->data_type == KEY_NODE && node->data.key_node_code == STATEMENT_ND)
 
-#define NODE_IS_GOTO(node)      (node->data_type == KEY_NODE && node->data.key_node_code == GOTO_ND)
+#define NODE_IS_GOTO(node     )  (node->data_type == KEY_NODE && node->data.key_node_code == GOTO_ND     )
 
-#define NODE_IS_PERM(node)      (node->data_type == KEY_NODE && node->data.key_node_code == PERM_ND)
+#define NODE_IS_PERM(node     )  (node->data_type == KEY_NODE && node->data.key_node_code == PERM_ND     )
 
-#define NODE_IS_LABEL(node)     (node->data_type == KEY_NODE && node->data.key_node_code == LABEL_ND)
+#define NODE_IS_LABEL(node    )  (node->data_type == KEY_NODE && node->data.key_node_code == LABEL_ND    )
 
-#define NODE_IS_IF(node)        (node->data_type == KEY_NODE && node->data.key_node_code == IF_ND)
+#define NODE_IS_IF(node       )  (node->data_type == KEY_NODE && node->data.key_node_code == IF_ND       )
 
-#define NODE_IS_ASS(node)       (node->data_type == KEY_NODE && node->data.key_node_code == ASS_ND)
+#define NODE_IS_ASS(node      )  (node->data_type == KEY_NODE && node->data.key_node_code == ASS_ND      )
 
-#define NODE_IS_DECL(node)      (node->data_type == KEY_NODE && node->data.key_node_code == DECL_ND)
+#define NODE_IS_DECL(node     )  (node->data_type == KEY_NODE && node->data.key_node_code == DECL_ND     )
 
-#define NODE_IS_WHILE(node)     (node->data_type == KEY_NODE && node->data.key_node_code == WHILE_ND)
+#define NODE_IS_WHILE(node    )  (node->data_type == KEY_NODE && node->data.key_node_code == WHILE_ND    )
 
-#define NODE_IS_CALL(node)      (node->data_type == KEY_NODE && node->data.key_node_code == CALL_ND)
+#define NODE_IS_CALL(node     )  (node->data_type == KEY_NODE && node->data.key_node_code == CALL_ND     )
 
-#define NODE_IS_RET(node)       (node->data_type == KEY_NODE && node->data.key_node_code == RET_ND)
+#define NODE_IS_RET(node      )  (node->data_type == KEY_NODE && node->data.key_node_code == RET_ND      )
 
-#define NODE_IS_CONSTANT(node)  (node->data_type == CONSTANT)
+#define NODE_IS_CONSTANT(node )  (node->data_type == CONSTANT     )
 
-#define NODE_IS_ID(node)        (node->data_type == IDENTIFICATOR)
+#define NODE_IS_ID(node       )  (node->data_type == IDENTIFICATOR)
 
-#define NODE_IS_UNAR_OPER(node) (node->data_type == UNAR_OPERAND)
+#define NODE_IS_UNAR_OPER(node)  (node->data_type == UNAR_OPERAND )
 
-#define NODE_IS_BIN_OPER(node)  (node->data_type == BIN_OPERAND)
+#define NODE_IS_BIN_OPER(node )  (node->data_type == BIN_OPERAND  )
 
-#define NODE_IS_STD_FUNC(node)  (node->data_type == STD_FUNC_NODE)
+#define NODE_IS_STD_FUNC(node )  (node->data_type == STD_FUNC_NODE)
 
-#define NODE_IS_KEY_NODE(node)  (node->data_type == KEY_NODE)
+#define NODE_IS_KEY_NODE(node )  (node->data_type == KEY_NODE     )
 
 //=========================================================
 
@@ -179,17 +180,19 @@ int _node_is_cmp_sign   (Node* node FOR_LOGS(, LOG_PARAMS));
 int _trans_struct_ctor(Trans* trans, FILE* asm_file, Tree* tree 
                                        FOR_LOGS(, LOG_PARAMS));
 
-int _add_nspace(Trans* trans FOR_LOGS(, LOG_PARAMS));
+int _add_nspace       (Trans* trans FOR_LOGS(, LOG_PARAMS));
 
-int _rm_nspace (Trans* trans FOR_LOGS(, LOG_PARAMS));
+int _rm_nspace        (Trans* trans FOR_LOGS(, LOG_PARAMS));
 
-int _var_arr_increase(Nspace* nspace FOR_LOGS(, LOG_PARAMS));
+int _var_arr_increase (Nspace* nspace FOR_LOGS(, LOG_PARAMS));
 
-int _add_var_decl(Trans* trans, int64_t var_hash FOR_LOGS(, LOG_PARAMS));
+int _add_var_decl     (Trans* trans, int64_t var_hash, int size FOR_LOGS(, LOG_PARAMS));
 
-int _was_var_decl(Trans* trans, int64_t hash FOR_LOGS(, LOG_PARAMS));
+int _was_var_decl     (Trans* trans, int64_t hash FOR_LOGS(, LOG_PARAMS));
 
-int _get_var_ram_pos(Trans* trans, int64_t hash FOR_LOGS(, LOG_PARAMS));
+int _get_var_ram_pos  (Trans* trans, int64_t hash FOR_LOGS(, LOG_PARAMS));
+
+int _get_var_size     (Trans* trans, int64_t hash FOR_LOGS(, LOG_PARAMS));
 
 int _trans_struct_dump(Trans* trans FOR_LOGS(, LOG_PARAMS));
 
@@ -199,7 +202,11 @@ int _move_memory_place(Trans* trans FOR_LOGS(, LOG_PARAMS));
 
 int _move_memory_place_back(int offset, FILE* asm_file FOR_LOGS(, LOG_PARAMS));
 
-int _reset_ram_pos  (Trans* trans FOR_LOGS(, LOG_PARAMS));
+int _reset_ram_pos    (Trans* trans FOR_LOGS(, LOG_PARAMS));
+
+int _trans_var        (Trans* trans, int64_t hash FOR_LOGS(, LOG_PARAMS));
+
+int _trans_arr_values (Node* node, Trans* trans FOR_LOGS(, LOG_PARAMS));
 
 //===================================================================
 
@@ -224,14 +231,17 @@ int _reset_ram_pos  (Trans* trans FOR_LOGS(, LOG_PARAMS));
 #define var_arr_increase(nspace) \
        _var_arr_increase(nspace FOR_LOGS(, LOG_ARGS))
 
-#define add_var_decl(trans, var_hash) \
-       _add_var_decl(trans, var_hash FOR_LOGS(, LOG_ARGS))
+#define add_var_decl(trans, var_hash, size) \
+       _add_var_decl(trans, var_hash, size FOR_LOGS(, LOG_ARGS))
 
 #define was_var_decl(trans, var_hash) \
        _was_var_decl(trans, var_hash FOR_LOGS(, LOG_ARGS))
 
 #define get_var_ram_pos(trans, hash) \
        _get_var_ram_pos(trans, hash FOR_LOGS(, LOG_ARGS))
+
+#define get_var_size(trans, hash) \
+       _get_var_size(trans, hash FOR_LOGS(, LOG_ARGS))
 
 #define move_memory_place(trans) \
        _move_memory_place(trans FOR_LOGS(, LOG_ARGS))

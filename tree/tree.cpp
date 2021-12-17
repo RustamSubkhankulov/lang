@@ -454,6 +454,7 @@ int _tree_draw_graph(struct Tree* tree, LOG_PARAMS) {
     //fprintf(graph, "rankdir=LR;\n");
     fprintf(graph, "node[ style = filled, fontsize = 24];\n");
     fprintf(graph, "edge[ arrowhead = vee, fontsize = 24 ];\n");
+    //fprintf(graph, "splines = false;\n");
 
     int ret = tree_draw_legend(graph);
     if (ret == -1)

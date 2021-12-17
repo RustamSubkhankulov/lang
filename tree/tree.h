@@ -247,7 +247,10 @@ enum key_node_codes
     DECISION_ND  = 13,
     IF_ND        = 14,
     FUNC_DEFN_ND = 15,
-    PERM_ND      = 16
+    PERM_ND      = 16,
+    SIZE_ND      = 17,
+    INDEX_ND     = 18,
+    ELEM_ND      = 19
 };
 
 struct Key_node_info
@@ -273,7 +276,11 @@ const struct Key_node_info Key_node_info_table[] =
     {HEAD_ND      , "HEAD"      },
     {DECISION_ND  , "DESIC"     },
     {IF_ND        , "IF"        },
-    {PERM_ND      , "PERMANENT" }
+    {PERM_ND      , "PERMANENT" },
+    //{ARR_ND       , "ARRAY"     },
+    {SIZE_ND      , "SIZE"      },
+    {INDEX_ND     , "INDEX"     },
+    {ELEM_ND      , "ELEMENT"   }
 };
 
 const int Key_node_number = sizeof(Key_node_info_table) / sizeof(struct Key_node_info);

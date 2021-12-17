@@ -216,8 +216,8 @@ enum Key_word_codes
     RET       = 103,
     DO        = 104,
     WHILE     = 105,
-    BREAK     = 106,
-    CONT      = 107,
+  //BREAK     = 106,
+  //CONT      = 107,
     IF        = 108,
     ELSE      = 109,
     BR_OPEN   = 110,
@@ -228,14 +228,18 @@ enum Key_word_codes
     NEG       = 115,
     FBR_OPEN  = 116,
     FBR_CLOSE = 117,
-    PERM      = 118
+    PERM      = 118,
+    ARR       = 119,
+    SBR_OPEN  = 120,
+    SBR_CLOSE = 121,
+    COMMA     = 122
 };
 
 //-------------------------------------------------------------------
 
 const struct Key_word Key_words[] = 
 {
-    {"petrificustotalus", END      , "end of code"         , 0},
+    {"obliviate"        , END      , "end of code"         , 0},
     {"aberto"           , SOL      , "start of the line"   , 0},
     {"flipendo"         , EOL      , "end of the line"     , 0},
     {"accio"            , GOTO     , "goto"                , 0},
@@ -243,20 +247,24 @@ const struct Key_word Key_words[] =
     {"expelliarmus"     , RET      , "return"              , 0},
     {"imperio"          , DO       , "do"                  , 0},
     {"confundo"         , WHILE    , "while"               , 0},
-    {"bombradamaxima"   , BREAK    , "break"               , 0},
-    {"sectumsempra"     , CONT     , "continue"            , 0},
+  //{"bombradamaxima"   , BREAK    , "break"               , 0},
+  //{"sectumsempra"     , CONT     , "continue"            , 0}, 
     {"reducto"          , IF       , "if"                  , 0},
     {"aguamenti"        , ELSE     , "else"                , 0},
-    {"alohomora"        , BR_OPEN  , "open bracket"        , 0},
-    {"avadacedavra"     , BR_CLOSE , "close bracket"       , 0},
+    {"avada"            , BR_OPEN  , "open bracket"        , 0},
+    {"cedavra"          , BR_CLOSE , "close bracket"       , 0},
     {"riddikulus"       , ASS      , "assignment"          , 0},
-    {"wingardiumleviosa", START    , "start of the code"   , 0},
+    {"lumos"            , START    , "start of the code"   , 0},
     {"stupefy"          , DECL     , "declaration"         , 0},
     {"colorvaria"       , DEFN     , "func definition"     , 0},
     {"cursed"           , NEG      , "negative"            , 0},
-    {"confringo"        , FBR_OPEN , "figure_bracket open" , 0},
-    {"lumos"            , FBR_CLOSE, "fugire bracket close", 0},
-    {"ascendio"         , PERM     , "permanent"           , 0}
+    {"wingardium"       , FBR_OPEN , "figure_bracket open" , 0},
+    {"leviosa"          , FBR_CLOSE, "fugire bracket close", 0},
+    {"ascendio"         , PERM     , "permanent"           , 0},
+    {"expecto"          , SBR_OPEN , "square open bracket" , 0},
+    {"patronum"         , SBR_CLOSE, "square close bracket", 0},
+    {"nox"              , COMMA    , "comma"               , 0},
+    {"alohomora"        , ARR      , "array"               , 0}
 };
 
 const int Key_words_number = sizeof(Key_words) / sizeof(Key_word);
