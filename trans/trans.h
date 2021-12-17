@@ -106,6 +106,12 @@ struct Trans
 
 #define NODE_IS_RET(node      )  (node->data_type == KEY_NODE && node->data.key_node_code == RET_ND      )
 
+#define NODE_IS_ELEM(node     )  (node->data_type == KEY_NODE && node->data.key_node_code == ELEM_ND     )
+
+#define NODE_IS_INDEX(node    )  (node->data_type == KEY_NODE && node->data.key_node_code == INDEX_ND    )
+
+#define NODE_IS_SIZE(node     )  (node->data+type == KEY_NODE && node->data.key_node_code == SIZE_ND     )
+
 #define NODE_IS_CONSTANT(node )  (node->data_type == CONSTANT     )
 
 #define NODE_IS_ID(node       )  (node->data_type == IDENTIFICATOR)
@@ -133,6 +139,8 @@ int _trans_label_decl   (Node* node, Trans* trans FOR_LOGS(, LOG_PARAMS));
 int _trans_cond         (Node* node, Trans* trans FOR_LOGS(, LOG_PARAMS));
 
 int _trans_ass          (Node* node, Trans* trans FOR_LOGS(, LOG_PARAMS));
+
+// int _trans_arr_ass      (Node* node, Trans* trans FOR_LOGS(, LOG_PARAMS));
 
 int _trans_decl         (Node* node, Trans* trans FOR_LOGS(, LOG_PARAMS));
 
@@ -304,6 +312,12 @@ int _trans_arr_values (Node* node, Trans* trans FOR_LOGS(, LOG_PARAMS));
 
 #define trans_ass(node, trans) \
        _trans_ass(node, trans FOR_LOGS(, LOG_ARGS))
+
+// #define trans_arr_ass(node, trans) 
+       // _trans_arr_ass(node, trans FOR_LOGS(, LOG_ARGS))
+
+// #define trans_arr_el_ass(node, trans) 
+//        _trans_arr_el_ass(node, trans FOR_LOGS(, LOG_ARGS))
 
 #define trans_decl(node, trans) \
        _trans_decl(node, trans FOR_LOGS(, LOG_ARGS))

@@ -756,20 +756,131 @@ int _trans_ass(Node* node, Trans* trans FOR_LOGS(, LOG_PARAMS))
 {
     TRANS_START_CHECK(node, trans);
 
-    //fprintf(ASM_FILE, "\n\n ; Assignment \n");
+    if (NLR)
+    {
+        int ret = trans_ass_index(node, trans);
+        RETURN_CHECK(ret);
+        return 0;
+    }
 
-    int ret = trans_exp(node->R, trans);
-    RETURN_CHECK(ret);
+    int size = get_var_size(trans, NL->data.id_hash);
+    RETURN_CHECK(size);
 
-    int ram_pos = get_var_ram_pos(trans, node->L->data.id_hash);
+    Node* elem_nd = NR;
+
+    for (int counter = 0; counter < size; counter++)
+    {
+        if (!elem_nd)
+        {
+            error_report(INV_TREE);
+            return -1;
+        }
+
+        int ret = trans_exp(elem_nd->R, trans);
+        RETURN_CHECK(ret);
+
+        elem_nd = elem_nd->L;
+    }
+
+    int ram_pos = get_var_ram_pos(trans, NL->data.id_hash);
     RETURN_CHECK(ram_pos);
 
-    fprintf(ASM_FILE, "\n POP [%s + %d] \n", Ram_register, ram_pos);
+    for (int counter = 0; counter < size; counter++)
+    {
+        fprintf(ASM_FILE, "\n POP [%s + %d] \n", Ram_register, ram_pos + size - 1 - counter);
+    }
 
     //fprintf(ASM_FILE, "\n\n ;; \n\n");
 
     return 0;
 }
+
+/--------------------------------------------------------------------
+
+int _trans_ass_index(Node* node, Trans* trans FOR_LOGS(, LOG_PARAMS))
+{
+    TRANS_START_CHECK(node, trans);
+
+    int64_t var_hash = NL->data.id_hash;
+
+    int index = NLR->R->data.constant;
+
+    int ram_pos = get_var_ram_pos(trans, var_hash);
+    RETURN_CHECK(ram_pos);
+
+    int ret = trans_exp(NR, names);
+    RETURN_CHECK(ret);
+
+    fprintf(ASM_FILE, "\n POP[%s + %d] \n", Ram_register, ram_pos + index);
+
+    return 0;
+}
+
+//-------------------------------------------------------------------
+
+// int _trans_arr_el_ass(Node* node, Trans* trans FOR_LOGS(, LOG_PARAMS))
+// {
+//     TRANS_START_CHECK(node, trans);
+
+//     int ram_pos = get_var_ram_pos(trans, NLR->data.id_hash);
+//     RETURN_CHECK(ram_pos);
+
+//     int index = NLR->R->data.constant;
+
+//     int ret = trans_exp(node->R, trans);
+//     RETURN_CHECK(ret);
+
+//     fprintf(ASM_FILE, "\n POP [%s + %d] \n", Ram_register, ram_pos + index);
+
+//     return 0;
+// }
+
+//-------------------------------------------------------------------
+
+// int _trans_arr_ass(Node* node, Trans* trans FOR_LOGS(, LOG_PARAMS))
+// {
+//     TRANS_START_CHECK(node, trans);
+
+//     if (!NODE_IS_ID(node->L)
+//     {
+//         error_report(INV_TREE);
+//         return -1;
+//     }
+
+//     int64_t hash = node->L->data.id_hash;
+
+//     int size    = get_var_size   (trans, hash);
+//     RETURN_CHECK(size);
+//     int ram_pos = get_var_ram_pos(trans, hash);
+//     RETURN_CHECK(ram_pos);
+
+//     Node* elem = node->R;
+//     int ret    = 0;
+
+//     for (int counter = 0; counter < size; counter++)
+//     {
+//         if (!elem)
+//             break;
+
+//         ret = trans_exp(elem->R, trans);
+//         RETURN_CHECK(ret);
+
+//         elem = elem->L;
+//     }
+
+//     if (counter != size - 1)
+//     {
+//         error_report(INV_TREE);
+//         return -1;
+//     }
+
+//     for (int counter = 0; counter < size; counter++)
+//     {
+//         fprintf(ASM_FILE, "\n POP [%s + %d] \n", Ram_register, ram_pos + (size - 1) - counter);
+//     }
+
+//     return 0;
+// }
 
 //-------------------------------------------------------------------
 
@@ -778,6 +889,7 @@ int _trans_decl(Node* node, Trans* trans FOR_LOGS(, LOG_PARAMS))
     TRANS_START_CHECK(node, trans);
 
     int64_t var_hash = 0;
+    int size         = 0;
     int     ret      = 0;
 
     if (!NODE_IS_ASS(node->R))
@@ -789,20 +901,17 @@ int _trans_decl(Node* node, Trans* trans FOR_LOGS(, LOG_PARAMS))
     else
         node = node->R;
 
-    if (NODE_IS_PERM(node->L) && NODE_IS_ID(node->L->R))
-    {
-        ret = add_var_decl(trans, node->L->R->data.id_hash);
-        RETURN_CHECK(ret);
 
-        var_hash = node->L->R->data.id_hash;
+    if (NODE_IS_PERM(NL) && NODE_IS_ID(NLR) && NODE_IS_SIZE(NLR->R) && NODE_IS_CONSTANT(NLR->R->R))
+    {
+        var_hash = NLR->data.id_hash;
+        size = NLR->R->R->data.constant;
     }
 
-    else if (NODE_IS_ID(node->L))
+    else if (NODE_IS_ID(NL) && NODE_IS_SIZE(NLR) && NODE_IS_CONSTANT(NLR->R))
     {
-        ret = add_var_decl(trans, node->L->data.id_hash);
-        RETURN_CHECK(ret);
-
-        var_hash = node->L->data.id_hash;
+        var_hash = NL->data.id_hash;
+        size     = NLR->data.id_hahs;
     }
 
     else
@@ -811,17 +920,37 @@ int _trans_decl(Node* node, Trans* trans FOR_LOGS(, LOG_PARAMS))
         return -1;
     }
 
+    ret = add_var_decl(var_hash, size);
+    RETURN_CHECK(ret);
+
     //fprintf(ASM_FILE, "\n\n ; Declaration \n");
 
-    ret = trans_exp(node->R, trans);
-    RETURN_CHECK(ret);
+    if (NODE_IS_ELEM(NR))
+    {
+        Node* elem = NR;
+
+        while (elem)
+        {
+            ret = trans_exp(elem->R, trans);
+            RETURN_CHECK(ret);
+
+            elem = elem->L;
+        }
+    }
+    else
+    {
+        ret = trans_exp(NR, trans);
+        RETURN_CHECK(ret);
+    }
 
     int ram_pos = get_var_ram_pos(trans, var_hash);
     RETURN_CHECK(ram_pos);
 
-    fprintf(ASM_FILE, "\n POP [%s + %d] \n", Ram_register, ram_pos);
-    //fprintf(ASM_FILE, "\n\n ;; \n\n");
-
+    for (int counter = 0; counter <sixe; counter++)
+    {
+        fprintf(ASM_FILE, "\n POP [%s + %d] \n", Ram_register, ram_pos + (size - 1) - counter);
+        //fprintf(ASM_FILE, "\n\n ;; \n\n");
+    }
     return 0;
 }
 
