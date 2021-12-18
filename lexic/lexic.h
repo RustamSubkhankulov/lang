@@ -172,6 +172,8 @@
 
 #define IS_BLANK(symb) (isblank(symb) || symb == '\n');
 
+#define NO_TOKEN -2
+
 //===================================================================
 
 #define SYNTAX_ERROR(buffer) {                                      \
@@ -189,7 +191,8 @@
                        || symb == SUB \
                        || symb == MUL \
                        || symb == DIV \
-                       || symb == POW)
+                       || symb == POW \
+                       || symb == DEN) 
 
 //===================================================================
 
@@ -271,7 +274,22 @@ int _skip_blank_symb(Buffer_struct* buffer FOR_LOGS(, LOG_PARAMS));
 
 int _free_tokens(Tokens* tokens FOR_LOGS(, LOG_PARAMS));
 
+int _delete_comments(Tokens* tokens FOR_LOGS(, LOG_PARAMS));
+
+int _find_cmnt_close_token(Tokens* tokens FOR_LOGS(, LOG_PARAMS));
+
+int _find_cmnt_open_token(Tokens* tokens FOR_LOGS(, LOG_PARAMS));
+
 //===================================================================
+
+#define find_cmnt_close_token(tokens) \
+       _find_cmnt_close_token(tokens FOR_LOGS(, LOG_ARGS))
+
+#define find_cmnt_open_token(tokens) \
+       _find_cmnt_open_token(tokens FOR_LOGS(, LOG_ARGS))
+
+#define delete_comments(tokens) \
+       _delete_comments(tokens FOR_LOGS(, LOG_ARGS))
 
 #define free_tokens(tokens) \
        _free_tokens(tokens FOR_LOGS(, LOG_ARGS))

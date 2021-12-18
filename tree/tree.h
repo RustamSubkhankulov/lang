@@ -52,6 +52,16 @@
     } while(0);                                                     \
 }
 
+#define ADD_CONSTANT_NODE(node, value) {                            \
+                                                                    \
+    do                                                              \
+    {                                                               \
+        int ret = node_init_constant(node, value);                  \
+        if (ret == -1)                                              \
+            return -1;                                              \
+    } while(0);                                                     \
+}
+
 //-------------------------------------------------------------------
 
 #define NODE_INIT_IDENTIFICATOR(node, id_hash) {                    \

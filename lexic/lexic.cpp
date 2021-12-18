@@ -38,6 +38,10 @@ struct Tokens* _lexic_analysis(Buffer_struct* buffer FOR_LOGS(, LOG_PARAMS))
             return NULL;
     }
 
+    int ret = delete_comments(tokens);
+    if (ret == -1)
+        return NULL;
+
     return tokens;
 }
 
@@ -518,13 +522,103 @@ int _free_tokens(Tokens* tokens FOR_LOGS(, LOG_PARAMS))
 
 //==================================================================
 
+int _delete_comments(Tokens* tokens FOR_LOGS(, LOG_PARAMS))
+{
+    lang_log_report();
+    TOKENS_STRUCT_PTR_CHECK(tokens);
+
+    tokens_dump(tokens, logs_file);
+    fflush(logs_file);
+
+    int open  = 0;
+    int close = 0;
+
+    while ((open = find_cmnt_open_token(tokens)) != NO_TOKEN)
+    {
+        close = find_cmnt_close_token(tokens);
+
+        if (close < open)
+        {
+            error_report(CMNT_CLOSE_BEFORE);
+            return -1;
+        }
+        
+        if (close == NO_TOKEN)
+        {
+            error_report(CMNT_UNCLOSED);
+            return -1;
+        }
+
+        int comment_len = close - open + 1;
+
+        for (int ct = 0; ct < comment_len; ct++)
+            free(tokens->token_array[open + ct]);
+
+        memmove((tokens->token_array) + open, (tokens->token_array) +  close + 1,
+                              sizeof(Token*) * (size_t)(tokens->amount - close));
+
+        tokens->amount -= comment_len;
+
+        tokens->token_array = (Token**)realloc(tokens->token_array, (size_t)(tokens->amount) * sizeof(Token*));
+    }
+
+    if (find_cmnt_close_token(tokens) != NO_TOKEN)
+    {
+        error_report(CMNT_CLOSE_BEFORE);
+        return -1;
+    }
+
+    return 0;
+}
+
+//==================================================================
+
+int _find_cmnt_open_token(Tokens* tokens FOR_LOGS(, LOG_PARAMS))
+{
+    lang_log_report();
+    TOKENS_STRUCT_PTR_CHECK(tokens);
+
+    for (int counter = 0; counter < tokens->amount; counter++)
+    {
+
+        printf("\n\n amount %d counter %d \n\n", tokens->amount, counter);
+        fflush(stdout);
+        if (tokens->token_array[counter]->type == KEY_WORD 
+         && tokens->token_array[counter]->data.key_word_code == CMNT_OPEN)
+        {
+            return counter;
+        }
+    }
+
+    return NO_TOKEN;
+}
+
+//==================================================================
+
+int _find_cmnt_close_token(Tokens* tokens FOR_LOGS(, LOG_PARAMS))
+{
+    lang_log_report();
+    TOKENS_STRUCT_PTR_CHECK(tokens);
+
+    for (int counter = 0; counter < tokens->amount; counter++)
+    {
+        if (tokens->token_array[counter]->type == KEY_WORD 
+         && tokens->token_array[counter]->data.key_word_code == CMNT_CLOSE)
+        {
+            return counter;
+        }
+    }
+
+    return NO_TOKEN;
+}
+
+//==================================================================
+
 int _tokens_dump(Tokens* tokens, FILE* out FOR_LOGS(, LOG_PARAMS)) 
 {
     lang_log_report();
     TOKENS_STRUCT_PTR_CHECK(tokens);
 
-    
-    
     if (!out)
     {
         error_report(INV_FILE_PTR);
@@ -609,7 +703,7 @@ int _tokens_dump(Tokens* tokens, FILE* out FOR_LOGS(, LOG_PARAMS))
 
             case STD_FUNC:
             {
-                fprintf(out, "STANDART FUNCTION");
+                fprintf(out, "STANDART FUNCTION ");
 
                 for (int i = 0; i < Std_functions_number; i++)
                     if (cur_token->data.std_func_code == Std_functions[i].code)
@@ -636,6 +730,8 @@ int _tokens_dump(Tokens* tokens, FILE* out FOR_LOGS(, LOG_PARAMS))
 
         if (tokens->counter == counter)
             fprintf(out, "</b>");
+
+        fflush(logs_file);
     }
 
     fprintf(out, "</div> </pre>\n\n");

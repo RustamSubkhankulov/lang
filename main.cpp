@@ -7,6 +7,7 @@
 #include "general/general.h"
 #include "syntax/syntax.h"
 #include "trans/trans.h"
+#include "tree_simp/tree_simp.h"
 
 //===================================================================
 
@@ -44,6 +45,9 @@ int main(int argc, char* argv[]) {
     ret = build_a_tree(&tree, tokens);
     if (ret == -1) return -1;
 
+    tree_draw_graph(&tree);
+
+    TREE_SIMPLIFY(&tree);
     tree_draw_graph(&tree);
 
     ret = translation_execute(&tree, argv[3]);

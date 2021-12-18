@@ -1309,6 +1309,13 @@ int _trans_unar_operand(Node* node, Trans* trans FOR_LOGS(, LOG_PARAMS))
             break;
         }
 
+        case DEN:
+        {
+            fprintf(ASM_FILE, "\n PUSH 0 \n");
+            fprintf(ASM_FILE, "\n MRE \n");
+            break;
+        }
+
         default:
         {
             error_report(NODE_INV_OPER_CODE);

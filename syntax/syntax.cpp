@@ -5,8 +5,6 @@
 
 #include "syntax.h"
 #include "../general/general.h"
-#include "func_definitions.h"
-//#include "syntax_id.h"
 
 //===================================================================
 
@@ -107,7 +105,7 @@ Node* _get_g(Tokens* tokens, Names* names FOR_LOGS(, LOG_PARAMS))
 
     CONNECT_LEFT(node, entity);
 
-    while (TOKEN_IS_SOL(CUR_TOKEN))
+    while (tokens->counter < tokens->amount - 1)
     {
         Node* new_entity = get_entity(tokens, names);
         NULL_CHECK(new_entity);
@@ -279,8 +277,6 @@ Node* _get_func_parameters(int* arg_num, Tokens* tokens, Names* names FOR_LOGS(,
 Node* _get_label_decl(Tokens* tokens, Names* names FOR_LOGS(, LOG_PARAMS)) 
 {
     SYNTAX_READ_FUNC_START(tokens, names);
-
-    REQUIRE_KEY_WORD(SOL);
     REQUIRE_KEY_WORD(LABEL);
 
     Node* label_name = get_label_id_decl(tokens, names);
@@ -301,8 +297,6 @@ Node* _get_label_decl(Tokens* tokens, Names* names FOR_LOGS(, LOG_PARAMS))
 Node* _get_statement(Tokens* tokens, Names* names FOR_LOGS(, LOG_PARAMS)) 
 {
     SYNTAX_READ_FUNC_START(tokens, names);
-
-    REQUIRE_KEY_WORD(SOL);
 
     Node* node = (Node*)node_allocate_memory();
     NODE_INIT_KEY_NODE(node, STATEMENT_ND);
@@ -386,7 +380,7 @@ Node* _get_compl_statement(Tokens* tokens, Names* names FOR_LOGS(, LOG_PARAMS))
 
     Node* first_stat = statement;
 
-    while (TOKEN_IS_SOL(CUR_TOKEN))
+    while (!TOKEN_IS_FBR_CLOSE(CUR_TOKEN))
     {
         Node* new_statement = get_statement(tokens, names);
         NULL_CHECK(new_statement);
@@ -1132,27 +1126,48 @@ Node* _get_exp(Tokens* tokens, Names* names FOR_LOGS(, LOG_PARAMS))
 {
     SYNTAX_READ_FUNC_START(tokens, names);
 
-    Node* exp = get_e(tokens, names);
-    NULL_CHECK(exp);
-
-    if (TOKEN_IS_CMP_SIGN(CUR_TOKEN))
+    if (TOKEN_IS_DEN(CUR_TOKEN))
     {
-        Node* cmp = (Node*)node_allocate_memory();
-        NULL_CHECK(cmp);
+        tokens->counter++;
+        Node* den_nd = (Node*)node_allocate_memory();
+        NULL_CHECK(den_nd);
 
-        NODE_INIT_BIN_OPERAND(cmp, CUR_TOKEN->data.cmp_sign_code);
+        NODE_INIT_UNAR_OPERAND(den_nd, DEN);
+        CONNECT_LEFT(den_nd, get_f(tokens, names));
+
+        return den_nd;
+    }
+    else
+        return get_f(tokens, names);
+}
+
+//-------------------------------------------------------------------
+
+Node* _get_f(Tokens* tokens, Names* names FOR_LOGS(, LOG_PARAMS)) 
+{
+    SYNTAX_READ_FUNC_START(tokens, names);
+
+    Node* e = get_e(tokens, names);
+    NULL_CHECK(e);
+
+    while (TOKEN_IS_CMP_SIGN(CUR_TOKEN))
+    {
+        Node* f = (Node*)node_allocate_memory();
+        NULL_CHECK(f);
+
+        NODE_INIT_BIN_OPERAND(f, CUR_TOKEN->data.cmp_sign_code);
         tokens->counter++;
 
-        CONNECT_LEFT(cmp, exp);
+        CONNECT_LEFT(f, e);
 
-        Node* exp_second = get_e(tokens, names);
-        NULL_CHECK(exp_second);
+        Node* e2 = get_e(tokens, names);
+        NULL_CHECK(e2);
 
-        CONNECT_RIGHT(cmp, exp_second);
-        return cmp;
+        CONNECT_RIGHT(f, e2);
+        e = f;
     }
 
-    return exp;
+    return e;
 }
 
 //-------------------------------------------------------------------

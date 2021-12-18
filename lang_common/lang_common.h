@@ -48,8 +48,7 @@ enum Calc_functions_codes
     ARCSIN = 107,
     ARCTG  = 108,
     ARCCTG = 109,
-    SQR    = 110,
-    FACT   = 111
+    SQR    = 110
 };
 
 //-------------------------------------------------------------------
@@ -136,7 +135,8 @@ enum Operands
     SUB = '-',
     MUL = '*',
     DIV = '/',
-    POW = '^'
+    POW = '^',
+    DEN = '!'
 };
 
 //===================================================================
@@ -187,14 +187,6 @@ enum token_types
 
 //===================================================================
 
-// struct Identificator
-// {
-//     const char* name;
-//     int64_t hash;
-// };
-
-//===================================================================
-
 struct Key_word
 {
     const char* name;
@@ -207,66 +199,66 @@ struct Key_word
 
 enum Key_word_codes
 {
-    START     = 97,
-    END       = 98,
-    SOL       = 99,
-    EOL       = 100,
-    LABEL     = 101,
-    GOTO      = 102,
-    RET       = 103,
-    DO        = 104,
-    WHILE     = 105,
-  //BREAK     = 106,
-  //CONT      = 107,
-    IF        = 108,
-    ELSE      = 109,
-    BR_OPEN   = 110,
-    BR_CLOSE  = 111,
-    ASS       = 112,
-    DECL      = 113,
-    DEFN      = 114,
-    NEG       = 115,
-    FBR_OPEN  = 116,
-    FBR_CLOSE = 117,
-    PERM      = 118,
-    ARR       = 119,
-    SBR_OPEN  = 120,
-    SBR_CLOSE = 121,
-    COMMA     = 122,
-    DEN       = 123,
+    START      = 97,
+    END        = 98,
+    EOL        = 100,
+    LABEL      = 101,
+    GOTO       = 102,
+    RET        = 103,
+    DO         = 104,
+    WHILE      = 105,
+  //BREAK      = 106,
+  //CONT       = 107,
+    IF         = 108,
+    ELSE       = 109,
+    BR_OPEN    =  110,
+    BR_CLOSE   = 111,
+    ASS        = 112,
+    DECL       = 113,
+    DEFN       = 114,
+    NEG        = 115,
+    FBR_OPEN   = 116,
+    FBR_CLOSE  = 117,
+    PERM       = 118,
+    ARR        = 119,
+    SBR_OPEN   = 120,
+    SBR_CLOSE  = 121,
+    COMMA      = 122,
+    CMNT_OPEN  = 123,
+    CMNT_CLOSE = 124
 };
 
 //-------------------------------------------------------------------
 
 const struct Key_word Key_words[] = 
 {
-    {"obliviate"        , END      , "end of code"         , 0},
-    {"aberto"           , SOL      , "start of the line"   , 0},
-    {"flipendo"         , EOL      , "end of the line"     , 0},
-    {"accio"            , GOTO     , "goto"                , 0},
-    {"geminio"          , LABEL    , "label"               , 0},
-    {"expelliarmus"     , RET      , "return"              , 0},
-    {"imperio"          , DO       , "do"                  , 0},
-    {"confundo"         , WHILE    , "while"               , 0},
-  //{"bombradamaxima"   , BREAK    , "break"               , 0},
-  //{"sectumsempra"     , CONT     , "continue"            , 0}, 
-    {"reducto"          , IF       , "if"                  , 0},
-    {"aguamenti"        , ELSE     , "else"                , 0},
-    {"avada"            , BR_OPEN  , "open bracket"        , 0},
-    {"cedavra"          , BR_CLOSE , "close bracket"       , 0},
-    {"riddikulus"       , ASS      , "assignment"          , 0},
-    {"lumos"            , START    , "start of the code"   , 0},
-    {"stupefy"          , DECL     , "declaration"         , 0},
-    {"colorvaria"       , DEFN     , "func definition"     , 0},
-    {"cursed"           , NEG      , "negative"            , 0},
-    {"wingardium"       , FBR_OPEN , "figure_bracket open" , 0},
-    {"leviosa"          , FBR_CLOSE, "fugire bracket close", 0},
-    {"ascendio"         , PERM     , "permanent"           , 0},
-    {"expecto"          , SBR_OPEN , "square open bracket" , 0},
-    {"patronum"         , SBR_CLOSE, "square close bracket", 0},
-    {"nox"              , COMMA    , "comma"               , 0},
-    {"alohomora"        , ARR      , "array"               , 0},
-    {"oscausi"          , DEN      , "denial"              , 0}
+    {"obliviate"        , END       , "end of code"         , 0},
+    {"flipendo"         , EOL       , "end of the line"     , 0},
+    {"accio"            , GOTO      , "goto"                , 0},
+    {"geminio"          , LABEL     , "label"               , 0},
+    {"expelliarmus"     , RET       , "return"              , 0},
+    {"imperio"          , DO        , "do"                  , 0},
+    {"confundo"         , WHILE     , "while"               , 0},
+  //{"bombradamaxima"   , BREAK     , "break"               , 0},
+  //{"sectumsempra"     , CONT      , "continue"            , 0}, 
+    {"reducto"          , IF        , "if"                  , 0},
+    {"aguamenti"        , ELSE      , "else"                , 0},
+    {"avada"            , BR_OPEN   , "open bracket"        , 0},
+    {"cedavra"          , BR_CLOSE  , "close bracket"       , 0},
+    {"riddikulus"       , ASS       , "assignment"          , 0},
+    {"lumos"            , START     , "start of the code"   , 0},
+    {"stupefy"          , DECL      , "declaration"         , 0},
+    {"colorvaria"       , DEFN      , "func definition"     , 0},
+    {"cursed"           , NEG       , "negative"            , 0},
+    {"wingardium"       , FBR_OPEN  , "figure_bracket open" , 0},
+    {"leviosa"          , FBR_CLOSE , "fugire bracket close", 0},
+    {"ascendio"         , PERM      , "permanent"           , 0},
+    {"expecto"          , SBR_OPEN  , "square open bracket" , 0},
+    {"patronum"         , SBR_CLOSE , "square close bracket", 0},
+    {"nox"              , COMMA     , "comma"               , 0},
+    {"alohomora"        , ARR       , "array"               , 0},
+    {"petrificus"       , CMNT_OPEN , "comment open"        , 0},
+    {"totalus"          , CMNT_CLOSE, "comment close"       , 0}
 };
 
 const int Key_words_number = sizeof(Key_words) / sizeof(Key_word);

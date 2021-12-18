@@ -42,11 +42,15 @@
 
 #define TOKEN_IS_POW(token)       (token->type == OPER && token->data.operand == POW)
 
+#define TOKEN_IS_DEN(token)       (token->type == OPER && token->data.operand == DEN)
+
 #define TOKEN_IS_DEFN(token)      (token->type == KEY_WORD && token->data.key_word_code == DEFN)
 
 #define TOKEN_IS_RET(token)       (token->type == KEY_WORD && token->data.key_word_code == RET)
 
 #define TOKEN_IS_LABEL(token)     (token->type == KEY_WORD && token->data.key_word_code == LABEL)
+
+#define TOKEN_IS_END(token)       (token->type == KEY_WORD && token->data.key_word_code == END)
 
 #define TOKEN_IS_SOL(token)       (token->type == KEY_WORD && token->data.key_word_code == SOL)
 
@@ -236,6 +240,8 @@ Node* _get_ret             (Tokens* tokens, Names* names FOR_LOGS(, LOG_PARAMS))
 
 Node* _get_exp             (Tokens* tokens, Names* names FOR_LOGS(, LOG_PARAMS));
 
+Node* _get_f               (Tokens* tokens, Names* names FOR_LOGS(, LOG_PARAMS));
+
 Node* _get_e               (Tokens* tokens, Names* names FOR_LOGS(, LOG_PARAMS));
 
 Node* _get_t               (Tokens* tokens, Names* names FOR_LOGS(, LOG_PARAMS));
@@ -399,6 +405,9 @@ Node* _get_func_id         (Tokens* tokens, Names* names, int* name_hash FOR_LOG
 
 #define get_t(tokens, names) \
        _get_t(tokens, names FOR_LOGS(, LOG_ARGS))
+
+#define get_f(tokens, names) \
+       _get_f(tokens, names FOR_LOGS(, LOG_ARGS))
 
 #define get_m(tokens, names) \
        _get_m(tokens, names FOR_LOGS(, LOG_ARGS))

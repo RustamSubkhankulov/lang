@@ -672,3 +672,9 @@ Using array key word with variable of size 1)
 
 DEF_ERR(945, INV_ARG_NUM,
 Invalid number of arguments in func call)
+
+DEF_ERR(946, CMNT_UNCLOSED,
+Unclosed comment in code)
+
+DEF_ERR(947, CMNT_CLOSE_BEFORE,
+Comment closes before being opened)
