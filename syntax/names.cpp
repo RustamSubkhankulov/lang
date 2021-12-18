@@ -347,8 +347,6 @@ int _get_var_size(int64_t hash, Var_cluster* var_cluster FOR_LOGS(, LOG_PARAMS))
     lang_log_report();
     VAR_CLASTER_PTR_CHECK(var_cluster);
 
-    printf("\n\n hash is %ld \n\n", hash);
-
     for (int counter = 0; counter < var_cluster->var_spaces_num; counter++)
 
         for (int ct = 0; ct < var_cluster->var_spaces[counter].var_names_num; ct++)

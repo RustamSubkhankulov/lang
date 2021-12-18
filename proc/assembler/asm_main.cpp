@@ -18,9 +18,6 @@ int main(int argc, char* argv[]) {
 	char* text_buf = text_init_(argv[1], &text);
 	text_remove_comments(&text); $
 
-	for (int counter = 0; counter < text.strings_number; counter++)
-		fprintf(stdout, "|%s|\n", text.strings[counter].data);
-
 	struct Asmstruct asmstruct = { 0 };
 
 	err_val = convert_operations_to_binary(&text, &asmstruct); $

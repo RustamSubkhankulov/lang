@@ -400,43 +400,6 @@ int _tree_draw_legend(FILE* graph, LOG_PARAMS) {
 
 //===================================================================
 
-// static int add_statement_node_dot(Node* statement, LOG_PARAMS)
-// {
-//     if (!Statement_nodes_capacity)
-//     {
-//         Statement_nodes_dot = (Node**)calloc(sizeof(Node*), 5);
-//         Statement_nodes_capacity = 5;
-
-//         if (!Statement_nodes_dot)
-//         {
-//             return -1;
-//         }
-//     }
-    
-// 
-
-//-------------------------------------------------------------------
-
-// static int print_statement_ranksame(FILE* graph, LOG_PARAMS)
-// {
-//     if (!graph)
-//     {
-//         return -1;
-//     }
-
-//     fprintf(graph, "\n subgraph clusterstatements{ rankdir = TB; rank = same; \n");
-
-//     for (int counter = 0; counter < Statement_nodes_counter; counter++) 
-//     {
-//         fprintf(graph, " NODE%p; ", Statement_nodes_dot[counter]);
-//     }  
-
-//     fprintf(graph, "}\n");
-//     return 0;
-// }
-
-//===================================================================
-
 int _tree_draw_graph(struct Tree* tree, LOG_PARAMS) {
 
     tree_log_report();
@@ -1001,44 +964,6 @@ int _tree_validator(struct Tree* tree, LOG_PARAMS) {
 
 //===================================================================
 
-// int is_function_operand(struct Node* node) {
-
-//     if (!node)
-//         return 0;
-
-//     for (int counter = 0;
-//              counter < Functions_number;
-//              counter++) 
-
-//         if (node->data.operand == Functions[counter].code)
-//             return 1;
-
-//     return 0;
-// }
-
-//===================================================================
-
-// int symb_is_var_name(char symb) {
-
-//     return (symb < 'a' || symb > 'z')? 0: 1;
-// }
-
-//===================================================================
-
-// int symb_is_operand(int symb) {
-
-//     for (int counter = 0; 
-//              counter < Operands_number; 
-//              counter++) 
-
-//         if (symb == Operands[counter])
-//             return 1;
-
-//     return 0;
-// }
-
-//===================================================================
-
 int _node_validator(struct Node* node, LOG_PARAMS) {
 
     tree_log_report();
@@ -1046,55 +971,6 @@ int _node_validator(struct Node* node, LOG_PARAMS) {
     NODE_PTR_CHECK(node);
 
     int err_val  = 0;
-
-    // if (node->data_type == OPERAND 
-    // && (node->left_son == NULL && node->right_son == NULL)) 
-    // {
-    //     error_report(OPER_NO_SONS);
-    //     err_val++;
-    // }
-
-    // if (node->data_type == OPERAND
-    // && is_function_operand(node)
-    // && node->left_son == NULL) 
-    // {
-    //     error_report(INV_SONS_FUNCTION_OPERAND);
-    //     err_val++;
-    // }
-
-    // if ((node->data_type == CONSTANT || node->data_type == VARIABLE) 
-    //  && (node->right_son != NULL     || node->left_son  != NULL)) 
-    //  {
-    //     error_report(NODE_NO_SONS);
-    //     err_val++;
-    // }
-
-    // if (node->data_type == VARIABLE && !symb_is_var_name(node->data.variable)) 
-    // {
-    //     error_report(INV_VAR_NAME);
-    //     err_val++;
-    // }
-
-    // if (node->right_son != NULL 
-    //  && node->left_son  != NULL 
-    //  && node->left_son == node->right_son) 
-    //  {
-    //     error_report(NODE_EQUAL_SONS);
-    //     err_val++;
-    // }
-
-    // if (node->parent   != No_parent
-    // && node->parent    != NULL
-    // && node->left_son  != NULL
-    // && node->right_son != NULL) 
-    // {
-    //     if (node->parent->left_son  != node 
-    //      && node->parent->right_son != node) 
-    //     {
-    //         error_report(NODE_INV_PARENT);
-    //         err_val++;
-    //     }
-    // }
 
     return (err_val)? -1: 0; 
 }

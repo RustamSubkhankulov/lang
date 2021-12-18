@@ -174,8 +174,7 @@ int _is_memory_clear(void* base, size_t num, size_t size, LOG_PARAMS) {
 
 //===================================================================
 
-void* _my_recalloc(void* ptr, size_t number, size_t prev_number, size_t size_of_elem, 
-                                                                    LOG_PARAMS) {
+void* _my_recalloc(void* ptr, size_t number, size_t prev_number, size_t size_of_elem, LOG_PARAMS) {
     general_log_report();
 
     if (ptr == NULL) {

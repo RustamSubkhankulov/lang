@@ -110,7 +110,7 @@ const static struct Named_constant Std_constants[] =
 const static Cmp_sign Std_cmp_signs[] = 
 {
     {"==", EQ,   0},
-    {"!=", NEQ,  0},
+    {"#=", NEQ,  0},
     {">=", MEQ,  0},
     {"<=", LEQ,  0},
     {">" , MORE, 0},

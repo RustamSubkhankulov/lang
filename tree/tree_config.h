@@ -18,11 +18,16 @@
 //Generates .png files in /images and list_logs.html in text_files/
 #define TREE_LOGS
 
-//Calls dump of the tree every time validator is called
-#define TREE_DEBUG
+#ifdef LANG_LOGS
 
-//GRAPHVIZ
-#define TREE_GRAPHVIZ
+    //Calls dump of the tree every time validator is called
+    #define TREE_DEBUG
+
+    //GRAPHVIZ
+    #define TREE_GRAPHVIZ
+
+#endif
+
 
 //Definition for hash calculating
 #define HASH_POINTER_TO_CHAR

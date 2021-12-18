@@ -376,6 +376,10 @@ int _trans_arr_values (Node* node, Trans* trans FOR_LOGS(, LOG_PARAMS));
 #define trans_exp(node, trans) \
        _trans_exp(node, trans FOR_LOGS(, LOG_ARGS))
 
+//===================================================================
+
+#define DRAW_LINE fprintf(ASM_FILE, "\n ;;;;;;;;;;;;;;;;;;;;;;;;;;; \n ")
+
 
 
 

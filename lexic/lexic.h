@@ -166,7 +166,7 @@
 
 #define IS_NUMBER(symb) ('0' <= symb && symb <= '9')
 
-#define IS_COMPARISON_SYMB(symb) (symb == '<' || symb == '>' || symb == '=')
+#define IS_COMPARISON_SYMB(symb) (symb == '<' || symb == '>' || symb == '=' || symb == '#')
 
 #define IS_ALPHA(symb) (('a' <= symb && symb <= 'z') || ('A' <= symb && symb <= 'Z'))
 

@@ -6,7 +6,7 @@
 
 //=========================================================
 
-int _code_read_console(Buffer_struct* buffer, FOR_LOGS( LOG_PARAMS)) {
+int _code_read_console(Buffer_struct* buffer FOR_LOGS(, LOG_PARAMS)) {
 
     lang_log_report();
     BUFFER_STRUCT_PTR_CHECK(buffer);

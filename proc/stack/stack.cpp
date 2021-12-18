@@ -251,11 +251,15 @@ int stack_validator_(struct Stack* stack, LOG_PARAMS) {
 
     #endif
 
-    if (stack->self_ptr != stack) {
+    #ifdef DEBUG 
 
-        error_report(STK_INV_SELF_PTR);
-        check_val++;
-    }
+        if (stack->self_ptr != stack) {
+
+            error_report(STK_INV_SELF_PTR);
+            check_val++;
+        }
+        
+    #endif
 
     #ifdef CANARIES
 
@@ -956,7 +960,7 @@ int stack_out_(struct Stack* stack, LOG_PARAMS) {
 
         fprintf(logs_file, "[%d] DEC " ELEM_SPEC "  HEX %x" "\n", count,
                                                  stack->data[count - 1], 
-                                  (unsigned int)(stack->data[count - 1]));
+                                         (int)(stack->data[count - 1]));
 
     fprintf(logs_file, "\n </div> </pre>\n\n");
 
