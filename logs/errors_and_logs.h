@@ -22,10 +22,12 @@
 
 //===================================================================
 
-#ifdef CALC_LOGS
+#define LANG_LOGS
+
+#ifdef LANG_LOGS
 
     #define error_report(error_code) \
-        _error_report(error_code, LOG_ARGS)
+           _error_report(error_code, LOG_ARGS)
 
 #else
 
@@ -34,11 +36,24 @@
 
 #endif
 
-#define log_report() \
-       _log_report(LOGS_ARGS_USE, __FUNCTION__)
+#ifdef LANG_LOGS
 
-#define smpl_log_report() \
-	   _smpl_log_report(LOG_ARGS)
+    #define log_report() \
+        _log_report(LOGS_ARGS_USE, __FUNCTION__)
+
+    #define smpl_log_report() \
+        _smpl_log_report(LOG_ARGS)
+
+#else
+
+    #define log_report() \
+            dummy_func()
+
+    #define smpl_log_report() \
+            dummy_func()
+
+#endif 
+
 
 //===================================================================
 

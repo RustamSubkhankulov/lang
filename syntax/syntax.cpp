@@ -55,17 +55,9 @@ int _build_a_tree(Tree* tree, Tokens* tokens FOR_LOGS(, LOG_PARAMS))
     int ret = init_names_struct(&names);
     RETURN_CHECK(ret);
 
-    //
-    names_struct_dump(&names);
-    //
-
     Node* root = get_g(tokens, &names);
     if (!root)
         return -1;
-
-    //
-    names_struct_dump(&names);
-    //
 
     tree->root = root;
 
@@ -114,10 +106,6 @@ Node* _get_g(Tokens* tokens, Names* names FOR_LOGS(, LOG_PARAMS))
         entity = new_entity;
     }
 
-    //
-    names_struct_dump(names);
-    //
-
     check = clear_var_spaces(names->var_cluster);
     RET_VALUE_CHECK(check);
     
@@ -141,16 +129,9 @@ Node* _get_definitions(Tokens* tokens, Names* names FOR_LOGS(, LOG_PARAMS))
     Node* defn = get_defn(tokens, names);
     NULL_CHECK(defn);
 
-            //
-        names_struct_dump(names);
-        //
 
     int check = clear_var_spaces(names->var_cluster);
     RET_VALUE_CHECK(check);
-
-            //
-        names_struct_dump(names);
-        //
 
     Node* first_defn = defn;
 
@@ -419,16 +400,8 @@ Node* _get_instruction(Tokens* tokens, Names* names FOR_LOGS(, LOG_PARAMS))
 {
     SYNTAX_READ_FUNC_START(tokens, names);
 
-    //
-    names_struct_dump(names);
-    //
-
     int ret = add_var_space(names->var_cluster);
     RET_VALUE_CHECK(ret);
-
-    //
-    names_struct_dump(names);
-    //
 
     Node* node = 0;
 
@@ -444,16 +417,8 @@ Node* _get_instruction(Tokens* tokens, Names* names FOR_LOGS(, LOG_PARAMS))
         NULL_CHECK(node);
     }
 
-    //
-    names_struct_dump(names);
-    //
-
     ret = rm_var_space(names->var_cluster);
     RET_VALUE_CHECK(ret);
-
-    //
-    names_struct_dump(names);
-    //
 
     return node;
 }
@@ -1090,8 +1055,6 @@ Node* _get_func_call_args(Tokens* tokens, Names* names, int arg_num FOR_LOGS(, L
         param_nd = param_nd->L;
         arg_counter++;
     }
-
-    fprintf(logs_file, "\n<pre>\n\n\n\n arg_num %d arg_ct %d \n\n\n </pre>\n", arg_num, arg_counter);
 
     if (arg_counter != arg_num)
     {

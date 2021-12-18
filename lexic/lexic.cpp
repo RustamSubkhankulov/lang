@@ -119,6 +119,7 @@ int _read_comparison_sign(Buffer_struct* buffer, Tokens* tokens FOR_LOGS(, LOG_P
     }
 
     int code = cmp_sign_code(cmp_sign_buf);
+
     if (!code)
     {
         SYNTAX_ERROR(buffer);
@@ -527,8 +528,11 @@ int _delete_comments(Tokens* tokens FOR_LOGS(, LOG_PARAMS))
     lang_log_report();
     TOKENS_STRUCT_PTR_CHECK(tokens);
 
-    tokens_dump(tokens, logs_file);
-    fflush(logs_file);
+    #ifdef LANG_LOGS
+
+        tokens_dump(tokens, logs_file);
+
+    #endif
 
     int open  = 0;
     int close = 0;
@@ -580,8 +584,6 @@ int _find_cmnt_open_token(Tokens* tokens FOR_LOGS(, LOG_PARAMS))
 
     for (int counter = 0; counter < tokens->amount; counter++)
     {
-
-        printf("\n\n amount %d counter %d \n\n", tokens->amount, counter);
         fflush(stdout);
         if (tokens->token_array[counter]->type == KEY_WORD 
          && tokens->token_array[counter]->data.key_word_code == CMNT_OPEN)

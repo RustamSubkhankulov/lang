@@ -134,8 +134,7 @@ const double Precise = 0.000001;
        _close_file(file_ptr, LOG_ARGS)
 
 #define my_recalloc(ptr, number, prev_number, size_of_elem) \
-       _my_recalloc(ptr, number, prev_number, size_of_elem, \
-                                                 LOG_ARGS)
+       _my_recalloc(ptr, number, prev_number, size_of_elem, LOG_ARGS)
 
 #define clear_memory(base, num, size) \
        _clear_memory(base, num, size, LOG_ARGS)
@@ -152,8 +151,7 @@ int _clearstdin(LOG_PARAMS);
 
 int double_is_equal(double first, double second);
 
-void* _my_recalloc(void* ptr, size_t number, size_t prev_number, size_t size_of_elem,
-                                                                         LOG_PARAMS);
+void* _my_recalloc(void* ptr, size_t number, size_t prev_number, size_t size_of_elem, LOG_PARAMS);
 
 int _clear_memory(void* base, size_t num, size_t size, LOG_PARAMS);
 

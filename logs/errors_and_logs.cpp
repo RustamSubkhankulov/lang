@@ -163,6 +163,8 @@ int _log_report(LOG_PARAMS, const char* mother_func) {
     if (value < 0) 
         error_report(FILE_OUTPUT_ERROR);
 
+    printf("\n\n log !!! \n");
+
     return 0;
 }
 

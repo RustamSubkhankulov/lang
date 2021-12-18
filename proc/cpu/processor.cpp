@@ -273,8 +273,6 @@ int _proc_perform(struct Procstruct* procstruct, LOG_PARAMS) {
     while (1) {
 
         int ret_val = proc_execute_command(procstruct);
-        if (ret_val != 1)
-            processor_dump(procstruct);
 
         if (ret_val == -1) {
             
@@ -341,8 +339,6 @@ int _proc_execute_command(struct Procstruct* procstruct, LOG_PARAMS) {
             error_report(PROC_INV_OPER_CODE);
     }
 
-    processor_dump(procstruct);
-
     return 0;
 }
 
@@ -370,7 +366,6 @@ int _proc_final_check(struct Procstruct* procstruct, LOG_PARAMS) {
 int _processor_dump(struct Procstruct* procstruct, LOG_PARAMS) {
 
     proc_log_report();
-
     PROCSTRUCT_PTR_CHECK(procstruct);
 
     fprintf(logs_file, "\n <pre> <div class = \"outline\" style = \"background-color:lightgrey; style = \"text_align: center;>\n");
@@ -462,7 +457,7 @@ int _processor_dump(struct Procstruct* procstruct, LOG_PARAMS) {
 
         fprintf(logs_file, "[%2c] DEC %7g HEX %7x \n", ct + Ascii_offset + 1,
                                                    procstruct->regist[ct],
-                                    (unsigned int)procstruct->regist[ct]);
+                                             (int)procstruct->regist[ct]);
     
         if ( (ct + 1) % 8 == 0)
         fprintf(logs_file, "\n\n");

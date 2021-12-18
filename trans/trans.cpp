@@ -32,10 +32,6 @@
 
 static const char* Ram_register          = "dx";
 
-//static const char* Service_register    = "fx";
-
-// static const char* Argument_register     = "ax";
-
 static const char* Return_register       = "ex";
 
 static const char* Index_register        = "cx";
@@ -75,40 +71,44 @@ int _trans_struct_dump(Trans* trans FOR_LOGS(, LOG_PARAMS))
     lang_log_report();
     TRANS_STRUCT_PTR_CHECK(trans)
 
-    fprintf(logs_file, "<pre><div class=\"outline\"  "
-                                   "style = \"background-color:lightgrey;\" "
-                                   "style = \"text-align: center;\">\n");
+    #ifdef LANG_LOGS
 
-    fprintf(logs_file, "\n <b> Trans structure dump </b> \n");
+        fprintf(logs_file, "<pre><div class=\"outline\"  "
+                                    "style = \"background-color:lightgrey;\" "
+                                    "style = \"text-align: center;\">\n");
 
-    fprintf(logs_file, "\n Assembler FILE pointer: <%p> \n", trans->asm_file);
-    fprintf(logs_file, "\n Tree structure pointer: <%p> \n", trans->tree);
-    fprintf(logs_file, "\n Ram position offset: %d \n", trans->ram_pos);
+        fprintf(logs_file, "\n <b> Trans structure dump </b> \n");
 
-    fprintf(logs_file, "\n Namespaces number: %d \n",          trans->nspaces_num);
-    fprintf(logs_file, "\n Namespaces array pointer: <%p> \n", trans->nspaces);
-    fprintf(logs_file, "\n Current namespace:        <%p> \n", trans->cur_nspace);
-    
-    for (int counter = 0; counter < trans->nspaces_num; counter++)
-    {
-        fprintf(logs_file, "\n");
-        fprintf(logs_file, "\n <b> Namespace </b><%p> \n",     &(trans->nspaces[counter]));
-        fprintf(logs_file, "\n Variables array <%p>",            trans->nspaces[counter].vars);
-        fprintf(logs_file, "\n Vraiables array capcity: %d",     trans->nspaces[counter].var_cap);
-        fprintf(logs_file, "\n Variables number: %d",            trans->nspaces[counter].var_num);
-        fprintf(logs_file, "\n Local ram position offset: %d\n", trans->nspaces[counter].local_ram_pos);
+        fprintf(logs_file, "\n Assembler FILE pointer: <%p> \n", trans->asm_file);
+        fprintf(logs_file, "\n Tree structure pointer: <%p> \n", trans->tree);
+        fprintf(logs_file, "\n Ram position offset: %d \n", trans->ram_pos);
 
-        for (int ct = 0; ct < trans->nspaces[counter].var_num; ct++)
+        fprintf(logs_file, "\n Namespaces number: %d \n",          trans->nspaces_num);
+        fprintf(logs_file, "\n Namespaces array pointer: <%p> \n", trans->nspaces);
+        fprintf(logs_file, "\n Current namespace:        <%p> \n", trans->cur_nspace);
+        
+        for (int counter = 0; counter < trans->nspaces_num; counter++)
         {
-            fprintf(logs_file, "\n[%d] Hash: %ld Ram position: %d Size %d \n", counter,
-                                                                    trans->nspaces[counter].vars[ct].hash,
-                                                                    trans->nspaces[counter].vars[ct].ram_pos,
-                                                                    trans->nspaces[counter].vars[ct].size);
-        }
-        fprintf(logs_file, "\n\n");
-    }
+            fprintf(logs_file, "\n");
+            fprintf(logs_file, "\n <b> Namespace </b><%p> \n",     &(trans->nspaces[counter]));
+            fprintf(logs_file, "\n Variables array <%p>",            trans->nspaces[counter].vars);
+            fprintf(logs_file, "\n Vraiables array capcity: %d",     trans->nspaces[counter].var_cap);
+            fprintf(logs_file, "\n Variables number: %d",            trans->nspaces[counter].var_num);
+            fprintf(logs_file, "\n Local ram position offset: %d\n", trans->nspaces[counter].local_ram_pos);
 
-    fprintf(logs_file, "\n</div></pre>\n");
+            for (int ct = 0; ct < trans->nspaces[counter].var_num; ct++)
+            {
+                fprintf(logs_file, "\n[%d] Hash: %ld Ram position: %d Size %d \n", counter,
+                                                                        trans->nspaces[counter].vars[ct].hash,
+                                                                        trans->nspaces[counter].vars[ct].ram_pos,
+                                                                        trans->nspaces[counter].vars[ct].size);
+            }
+            fprintf(logs_file, "\n\n");
+        }
+
+        fprintf(logs_file, "\n</div></pre>\n");
+
+    #endif
 
     return 0;
 }
@@ -340,11 +340,11 @@ int _move_memory_place(Trans* trans FOR_LOGS(, LOG_PARAMS))
     TRANS_STRUCT_PTR_CHECK(trans);
 
     fprintf(ASM_FILE, "\n PUSH dx \n");
-    fprintf(ASM_FILE, "\n PUSH %d \n", trans->ram_pos);
+    fprintf(ASM_FILE, "\n PUSH %d \n", trans->ram_pos - 1);
     fprintf(ASM_FILE, "\n ADD \n");
     fprintf(ASM_FILE, "\n POP dx \n");
 
-    return trans->ram_pos;
+    return trans->ram_pos - 1;
 }
 
 //-------------------------------------------------------------------
@@ -408,6 +408,8 @@ int _write_asm_preparations(FILE* asm_file FOR_LOGS(, LOG_PARAMS))
     fprintf(asm_file, "\n CALL: main\n");
     fprintf(asm_file, "\n HLT \n");
 
+    fprintf(asm_file, "\n ;;;;;;;;;;;;;;;;;;;;;;;;;;; \n ");
+
     return 0;
 }
 
@@ -439,6 +441,8 @@ int _trans_tree_to_asm(Tree* tree, FILE* asm_file FOR_LOGS(, LOG_PARAMS))
 
         reset_ram_pos(&trans);
     }
+
+    fprintf(asm_file, "\n ;;;;;;;;;;;;;;;;;;;;;;;;;;; \n ");
 
     fprintf(asm_file, "\n main: \n");
 
@@ -528,6 +532,8 @@ int _trans_func_defn(Node* node, Trans* trans FOR_LOGS(, LOG_PARAMS))
         return -1;
     }
 
+    DRAW_LINE;
+
     fprintf(ASM_FILE, "\n %ld: \n", func_nd->L->data.id_hash);
 
     ret = trans_func_parameters(func_nd->R, trans);
@@ -539,7 +545,7 @@ int _trans_func_defn(Node* node, Trans* trans FOR_LOGS(, LOG_PARAMS))
     ret = rm_nspace(trans);
     RETURN_CHECK(ret);
 
-    fprintf(ASM_FILE, "\n RET \n");
+    //fprintf(ASM_FILE, "\n RET \n");
 
     return 0;
 }
@@ -606,6 +612,8 @@ int _trans_statement(Node* node, Trans* trans FOR_LOGS(, LOG_PARAMS))
         return -1;
     }
 
+    DRAW_LINE;
+
     return 0;
 }
 
@@ -658,10 +666,7 @@ int _trans_cond(Node* node, Trans* trans FOR_LOGS(, LOG_PARAMS))
     TRANS_START_CHECK(node, trans);
 
     srand((unsigned int)clock());
-    printf("\n\n srand argument %u \n\n", (unsigned int)clock());
     int random = rand();
-
-    printf("\n\n random %d \n\n", random);
 
     int ret = trans_exp(node->R, trans);
     RETURN_CHECK(ret);
@@ -734,7 +739,7 @@ int _trans_func_call_args(Node* node, Trans* trans FOR_LOGS(, LOG_PARAMS))
         RETURN_CHECK(ret);
 
         fprintf(ASM_FILE, "\n POP [%s + %d] \n", Ram_register, 
-                                                 ram_offset + ram_offset_ct);
+                                                 ram_offset + ram_offset_ct - 1);
         ram_offset_ct++;
 
         node = NL;
@@ -1060,8 +1065,6 @@ int _trans_exp(Node* node, Trans* trans FOR_LOGS(, LOG_PARAMS))
     TRANS_START_CHECK(node, trans);
 
     int ret = 0;
-
-    fflush(logs_file);
 
     if (NODE_IS_CALL(node))
     {

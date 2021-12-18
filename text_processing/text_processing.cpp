@@ -14,64 +14,6 @@
 
 //=============================================================================
 
-// int my_swap(void* first_, void* second_, size_t size) {
-
-// 	assert(first_  != NULL);
-// 	assert(second_ != NULL);
-
-// 	char* first_ptr  = (char*)first_;
-// 	char* second_ptr = (char*)second_;
-
-// 	while (size >= sizeof(int64_t)) {
-
-// 		int64_t temp = *(int64_t*)first_ptr;
-// 		*(int64_t*)first_ptr  = *(int64_t*)second_ptr;
-// 		*(int64_t*)second_ptr = temp;
-
-// 		first_ptr += sizeof(int64_t);
-// 		second_ptr += sizeof(int64_t);
-
-// 		size -= sizeof(int64_t);
-// 	}
-
-// 	while (size >= sizeof(int32_t)) {
-
-// 		int32_t temp = *(int32_t*)first_ptr;
-// 		*(int32_t*)first_ptr = *(int32_t*)second_ptr;
-// 		*(int32_t*)second_ptr = temp;
-
-// 		first_ptr += sizeof(int32_t);
-// 		second_ptr += sizeof(int32_t);
-
-// 		size -= sizeof(int32_t);
-// 	}
-
-// 	while (size >= sizeof(int16_t)) {
-
-// 		int16_t temp = *(int16_t*)first_ptr;
-// 		*(int16_t*)first_ptr  = *(int16_t*)second_ptr;
-// 		*(int16_t*)second_ptr = temp;
-
-// 		first_ptr += sizeof(int16_t);
-// 		second_ptr += sizeof(int16_t);
-
-// 		size -= sizeof(int16_t);
-// 	}
-
-// 	while (size >= sizeof(int8_t)) {
-
-// 		int8_t temp = *(int8_t*)first_ptr;
-// 		*(int8_t*)first_ptr  = *(int8_t*)second_ptr;
-// 		*(int8_t*)second_ptr = temp;
-
-// 		first_ptr += sizeof(int8_t);
-// 		second_ptr += sizeof(int8_t);
-
-// 		size -= sizeof(int8_t);
-// 	}
-
-// 	return 0;
-// }
 
 //=============================================================================
 char* text_init(const char* filename, struct Text* text, LOG_PARAMS) {
@@ -92,13 +34,6 @@ char* text_init(const char* filename, struct Text* text, LOG_PARAMS) {
 	text->buf = buf;
 
 	strings_init(buf, text);
-
-	#ifdef LOGS
-		fprintf(log_file, "Number of strings read is"
-					" %ld\n Size of the file: %ld.\n",
-								 text->strings_number,
-		     							  text->size);
-	#endif
 
 	return buf;
 }
@@ -129,12 +64,6 @@ char* _copy_from_file_to_buffer(const char* filename, int* size_ptr, LOG_PARAMS)
 	char* buf = copy_data_to_buf(size, fp, LOG_ARGS);
 
 	fclose(fp);
-
-	#ifdef LOGS
-		fprintf(log_file, "File %s copied to buffer. Size of copied data is %ld.\n\n",
-																		    filename,
-																		 text->size);
-	#endif
 
 	int ret = replace_nulls_with_spaces(buf, size);
 	if (ret == -1)
@@ -167,12 +96,6 @@ char* file_to_buf_copy(const char* filename, struct Text* text, LOG_PARAMS) {
 	char* buf = copy_data_to_buf(text->size, fp, LOG_ARGS);
 
 	fclose(fp);
-
-	#ifdef LOGS
-		fprintf(log_file, "File %s copied to buffer. Size of copied data is %ld.\n\n",
-																		    filename,
-																		 text->size);
-	#endif
 
 	return buf;
 }
@@ -238,10 +161,6 @@ long count_strings(char* buf) {
 		n_pointer++;
 	}
 
-	#ifdef LOGS
-		fprintf(log_file, "Strings counted. Number of strings %ld.\n", strings_number);
-	#endif
-
 	return strings_number;
 }
 
@@ -284,14 +203,6 @@ void strings_init(char* buf, struct Text* text) {
 	}
 
 	text->strings = starting_pointer;
-
-	#ifdef LOGS
-		fprintf(log_file, "Strings (expept empty strings) initializated."
-								 " Number of initializated strings %ld\n",
-													text->strings_number);
-	#endif
-
-
 }
 
 //===========================================================================
@@ -390,10 +301,6 @@ void clear_strings(struct Text* text) {
 		free(text->strings);
 
 	text->strings_number = 0;
-
-	#ifdef LOGS
-		fprintf(log_file, "Memory allocated for strings is free.\n");
-	#endif
 }
 
 //===========================================================================================
@@ -487,6 +394,10 @@ int _buffer_dump(struct Buffer_struct* buffer_struct, LOG_PARAMS) {
 
     text_log_report();
     BUFFER_STRUCT_PTR_CHECK(buffer_struct);
+
+	#ifndef LANG_LOGS
+		return 0;
+	#endif
 
     const char* buffer = buffer_struct->buffer;
     int size           = buffer_struct->size;

@@ -371,9 +371,7 @@ int _scan_label(const char* string, struct Label_temp* label_temp,
 							  	&symbol, &byte_offset);						
 		if (sscanf_ret == 1)											
 		byte_end += byte_offset;
-
-		printf("\n\n labelnamebuf: |%s| labellenght: %d string: |%s|\n\n", label_name_buf, label_name_length, string);											
-																			
+																	
 		if ((label_name_buf[label_name_length - 1] != ':' 					
 			&& sscanf_ret != 1)												
 		 	|| (sscanf_ret == 1 && symbol != ':'))							
@@ -588,8 +586,6 @@ int convert_operations_to_binary_(struct Text* text, struct Asmstruct* asmstruct
 	for (int str_count = 0; 
 			 str_count < text->strings_number; 
 			 str_count++) {
-
-		printf("\n\n text->string data: |%s| %d is null contain letter %d\n\n", text->strings[str_count].data, *(text->strings[str_count].data), does_contain_letters(text->strings[str_count].data));
 
 		if (text->strings[str_count].data == NULL
 			|| !does_contain_letters(text->strings[str_count].data))
